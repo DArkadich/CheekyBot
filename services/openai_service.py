@@ -1,11 +1,13 @@
+import hashlib
+import json
+from typing import Any, Dict, List, Optional
+
 import openai
 import redis
-import json
-import hashlib
-from typing import Optional, List, Dict, Any
 from loguru import logger
+
 from config.settings import settings
-from database.models import Gender, CommunicationStyle
+from database.models import CommunicationStyle, Gender
 
 
 class OpenAIService:
