@@ -29,6 +29,8 @@ class SettingsStates(StatesGroup):
 @router.callback_query(F.data == "settings_gender")
 async def settings_gender(callback: CallbackQuery, state: FSMContext) -> None:
     """Настройка пола пользователя"""
+    if callback.message is None:
+        return
     await callback.message.edit_text(
         "👤 <b>Выберите ваш пол:</b>",
         reply_markup=get_gender_selection_keyboard(),
@@ -41,6 +43,8 @@ async def settings_gender(callback: CallbackQuery, state: FSMContext) -> None:
 @router.callback_query(F.data == "settings_bot_gender")
 async def settings_bot_gender(callback: CallbackQuery, state: FSMContext) -> None:
     """Настройка пола бота"""
+    if callback.message is None:
+        return
     await callback.message.edit_text(
         "🤖 <b>Выберите пол бота:</b>",
         reply_markup=get_bot_gender_selection_keyboard(),
@@ -53,6 +57,8 @@ async def settings_bot_gender(callback: CallbackQuery, state: FSMContext) -> Non
 @router.callback_query(F.data == "settings_style")
 async def settings_style(callback: CallbackQuery, state: FSMContext) -> None:
     """Настройка стиля общения"""
+    if callback.message is None:
+        return
     await callback.message.edit_text(
         "💬 <b>Выберите стиль общения:</b>",
         reply_markup=get_communication_style_keyboard(),
@@ -65,6 +71,8 @@ async def settings_style(callback: CallbackQuery, state: FSMContext) -> None:
 @router.callback_query(F.data == "settings_stop_words")
 async def settings_stop_words(callback: CallbackQuery, state: FSMContext) -> None:
     """Настройка стоп-слов"""
+    if callback.message is None:
+        return
     user_id = callback.from_user.id
     user = await db.get_user(user_id)
 
@@ -82,6 +90,8 @@ async def settings_stop_words(callback: CallbackQuery, state: FSMContext) -> Non
 @router.callback_query(F.data == "settings_consent")
 async def settings_consent(callback: CallbackQuery) -> None:
     """Настройка согласия"""
+    if callback.message is None:
+        return
     user_id = callback.from_user.id
     user = await db.get_user(user_id)
 
@@ -100,6 +110,8 @@ async def settings_consent(callback: CallbackQuery) -> None:
 @router.callback_query(SettingsStates.waiting_for_gender, F.data.startswith("gender_"))
 async def change_gender(callback: CallbackQuery, state: FSMContext) -> None:
     """Изменение пола пользователя"""
+    if callback.message is None:
+        return
     gender_value = callback.data.split("_")[1]
     gender = Gender(gender_value)
 
@@ -129,6 +141,8 @@ async def change_gender(callback: CallbackQuery, state: FSMContext) -> None:
 )
 async def change_bot_gender(callback: CallbackQuery, state: FSMContext) -> None:
     """Изменение пола бота"""
+    if callback.message is None:
+        return
     bot_gender_value = callback.data.split("_")[2]
     bot_gender = Gender(bot_gender_value)
 
@@ -156,6 +170,8 @@ async def change_bot_gender(callback: CallbackQuery, state: FSMContext) -> None:
 @router.callback_query(SettingsStates.waiting_for_style, F.data.startswith("style_"))
 async def change_style(callback: CallbackQuery, state: FSMContext) -> None:
     """Изменение стиля общения"""
+    if callback.message is None:
+        return
     style_value = callback.data.split("_")[1]
     style = CommunicationStyle(style_value)
 
@@ -188,6 +204,11 @@ async def change_stop_words(message: Message, state: FSMContext) -> None:
 
     if not user:
         await message.answer("❌ Ошибка: пользователь не найден")
+        await state.clear()
+        return
+
+    if message.text is None:
+        await message.answer("❌ Ошибка: пустое сообщение")
         await state.clear()
         return
 

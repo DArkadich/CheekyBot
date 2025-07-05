@@ -79,7 +79,8 @@ class OpenAIService:
 
         if cached_response:
             logger.info(f"Using cached response for message: {message[:50]}...")
-            return cached_response.decode("utf-8")
+            decoded = cached_response.decode("utf-8")
+            return decoded if isinstance(decoded, str) else None
 
         try:
             system_prompt = self._get_style_prompt(style, user_gender, bot_gender)
@@ -109,7 +110,11 @@ class OpenAIService:
                 frequency_penalty=0.1,
             )
 
-            bot_response = response.choices[0].message.content.strip()
+            bot_response = response.choices[0].message.content
+            if bot_response is not None:
+                bot_response = bot_response.strip()
+            else:
+                return None
 
             # Сохранение в кеш
             self.redis_client.setex(cache_key, settings.cache_ttl, bot_response)
@@ -166,7 +171,8 @@ class OpenAIService:
                 temperature=0.9,
             )
 
-            return response.choices[0].message.content.strip()
+            content = response.choices[0].message.content
+            return content.strip() if content is not None else None
 
         except Exception as e:
             logger.error(f"Error generating roleplay scenario: {e}")

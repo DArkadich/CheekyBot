@@ -43,7 +43,7 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
     # Проверяем, существует ли пользователь
     user = await db.get_user(user_id)
 
-    if user:
+    if user is not None:
         # Пользователь уже существует
         await message.answer(
             f"Привет, {user.first_name}! 👋\nРад снова тебя видеть!",
@@ -105,7 +105,7 @@ async def cmd_stats(message: Message) -> None:
     user_id = message.from_user.id
     stats = await db.get_user_stats(user_id)
 
-    if stats:
+    if stats is not None:
         stats_text = f"""
 📊 <b>Ваша статистика</b>
 
@@ -126,7 +126,7 @@ async def start_conversation(message: Message, state: FSMContext) -> None:
     user_id = message.from_user.id
     user = await db.get_user(user_id)
 
-    if not user:
+    if user is None:
         await message.answer("Сначала нужно зарегистрироваться! Используйте /start")
         return
 
@@ -181,9 +181,13 @@ async def handle_conversation(message: Message, state: FSMContext) -> None:
     user_id = message.from_user.id
     user = await db.get_user(user_id)
 
-    if not user:
+    if user is None:
         await message.answer("Ошибка: пользователь не найден. Используйте /start")
         await state.clear()
+        return
+
+    if message.text is None:
+        await message.answer("Ошибка: пустое сообщение.")
         return
 
     # Проверяем стоп-слова
@@ -226,6 +230,8 @@ async def handle_conversation(message: Message, state: FSMContext) -> None:
 @router.callback_query(F.data.startswith("gender_"))
 async def handle_gender_selection(callback: CallbackQuery, state: FSMContext) -> None:
     """Обработка выбора пола пользователя"""
+    if callback.message is None:
+        return
     gender_value = callback.data.split("_")[1]
     gender = Gender(gender_value)
 
@@ -242,6 +248,8 @@ async def handle_gender_selection(callback: CallbackQuery, state: FSMContext) ->
 @router.callback_query(F.data.startswith("bot_gender_"))
 async def handle_bot_gender_selection(callback: CallbackQuery, state: FSMContext) -> None:
     """Обработка выбора пола бота"""
+    if callback.message is None:
+        return
     bot_gender_value = callback.data.split("_")[2]
     bot_gender = Gender(bot_gender_value)
 
@@ -258,12 +266,19 @@ async def handle_bot_gender_selection(callback: CallbackQuery, state: FSMContext
 @router.callback_query(F.data.startswith("style_"))
 async def handle_style_selection(callback: CallbackQuery, state: FSMContext) -> None:
     """Обработка выбора стиля общения"""
+    if callback.message is None:
+        return
     style_value = callback.data.split("_")[1]
     style = CommunicationStyle(style_value)
 
     data = await state.get_data()
     user_gender = data.get("user_gender")
     bot_gender = data.get("bot_gender")
+
+    if user_gender is None or bot_gender is None:
+        await callback.message.edit_text("Ошибка: не выбран пол пользователя или бота.")
+        await callback.answer()
+        return
 
     # Создаем пользователя
     user = User(
