@@ -8,11 +8,15 @@ RUN apt-get update && apt-get install -y \
 # Создание рабочей директории
 WORKDIR /app
 
+# Обновление pip до последней версии
+RUN pip install --upgrade pip
+
 # Копирование файлов зависимостей
 COPY requirements.txt .
 
-# Установка Python зависимостей
-RUN pip install --no-cache-dir -r requirements.txt
+# Установка Python зависимостей с разрешением конфликтов
+RUN pip install --no-cache-dir --upgrade setuptools wheel && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Копирование исходного кода
 COPY . .
