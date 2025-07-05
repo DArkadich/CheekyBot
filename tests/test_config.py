@@ -1,5 +1,6 @@
 import pytest
 
+
 @pytest.fixture(autouse=True)
 def set_env_vars(monkeypatch):
     monkeypatch.setenv("BOT_TOKEN", "test")
@@ -14,6 +15,7 @@ def set_env_vars(monkeypatch):
 
 def test_settings_load():
     from config.settings import Settings
+
     settings = Settings()
     assert settings.bot_token == "test"
     assert settings.openai_api_key == "test"
