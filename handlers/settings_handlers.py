@@ -127,7 +127,7 @@ async def change_gender(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(
     SettingsStates.waiting_for_bot_gender, F.data.startswith("bot_gender_")
 )
-async def change_bot_gender(callback: CallbackQuery, state: FSMContext):
+async def change_bot_gender(callback: CallbackQuery, state: FSMContext) -> None:
     """Изменение пола бота"""
     bot_gender_value = callback.data.split("_")[2]
     bot_gender = Gender(bot_gender_value)
@@ -154,7 +154,7 @@ async def change_bot_gender(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(SettingsStates.waiting_for_style, F.data.startswith("style_"))
-async def change_style(callback: CallbackQuery, state: FSMContext):
+async def change_style(callback: CallbackQuery, state: FSMContext) -> None:
     """Изменение стиля общения"""
     style_value = callback.data.split("_")[1]
     style = CommunicationStyle(style_value)
@@ -181,7 +181,7 @@ async def change_style(callback: CallbackQuery, state: FSMContext):
 
 
 @router.message(SettingsStates.waiting_for_stop_words)
-async def change_stop_words(message: Message, state: FSMContext):
+async def change_stop_words(message: Message, state: FSMContext) -> None:
     """Изменение стоп-слов"""
     user_id = message.from_user.id
     user = await db.get_user(user_id)

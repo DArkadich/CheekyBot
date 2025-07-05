@@ -19,7 +19,7 @@ class RoleplayStates(StatesGroup):
 
 
 @router.callback_query(F.data.startswith("scenario_"))
-async def start_roleplay_scenario(callback: CallbackQuery, state: FSMContext):
+async def start_roleplay_scenario(callback: CallbackQuery, state: FSMContext) -> None:
     """Начало ролевого сценария"""
     user_id = callback.from_user.id
     user = await db.get_user(user_id)
@@ -57,6 +57,7 @@ async def start_roleplay_scenario(callback: CallbackQuery, state: FSMContext):
         await state.set_state(RoleplayStates.in_roleplay)
 
         # Сохраняем начало сценария
+        from datetime import datetime
         conversation = Conversation(
             id=0,
             user_id=user_id,
@@ -64,7 +65,7 @@ async def start_roleplay_scenario(callback: CallbackQuery, state: FSMContext):
             bot_response=scenario_start,
             communication_style=user.communication_style,
             tokens_used=len(scenario_start.split()),
-            created_at=None,
+            created_at=datetime.now(),
         )
         await db.save_conversation(conversation)
     else:
@@ -77,7 +78,7 @@ async def start_roleplay_scenario(callback: CallbackQuery, state: FSMContext):
 
 
 @router.message(RoleplayStates.in_roleplay)
-async def handle_roleplay_message(message: Message, state: FSMContext):
+async def handle_roleplay_message(message: Message, state: FSMContext) -> None:
     """Обработка сообщений в ролевой игре"""
     user_id = message.from_user.id
     user = await db.get_user(user_id)
@@ -115,7 +116,7 @@ async def handle_roleplay_message(message: Message, state: FSMContext):
             bot_response=bot_response,
             communication_style=user.communication_style,
             tokens_used=len(message.text.split()) + len(bot_response.split()),
-            created_at=None,
+            created_at=datetime.now(),
         )
         await db.save_conversation(conversation)
     else:
@@ -123,7 +124,7 @@ async def handle_roleplay_message(message: Message, state: FSMContext):
 
 
 @router.callback_query(RoleplayStates.in_roleplay, F.data == "stop_conversation")
-async def stop_roleplay(callback: CallbackQuery, state: FSMContext):
+async def stop_roleplay(callback: CallbackQuery, state: FSMContext) -> None:
     """Остановка ролевой игры"""
     await callback.message.edit_text(
         "🛑 Ролевая игра остановлена.\n\n"

@@ -1,5 +1,6 @@
 import asyncio
 import sys
+from typing import Any
 
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
@@ -13,7 +14,7 @@ from handlers.settings_handlers import router as settings_router
 from handlers.user_handlers import router as user_router
 
 
-async def main():
+async def main() -> None:
     """Главная функция запуска бота"""
 
     # Настройка логирования
@@ -53,7 +54,7 @@ async def main():
 
     # Обработчик ошибок
     @dp.error()
-    async def error_handler(update, exception):
+    async def error_handler(update: Any, exception: Exception) -> bool:
         logger.error(f"Error handling update {update}: {exception}")
         return True
 
