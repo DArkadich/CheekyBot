@@ -1,15 +1,16 @@
 import asyncio
 import sys
-from loguru import logger
+
 from aiogram import Bot, Dispatcher
-from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.enums import ParseMode
+from aiogram.fsm.storage.memory import MemoryStorage
+from loguru import logger
 
 from config.settings import settings
 from database.connection import db
-from handlers.user_handlers import router as user_router
-from handlers.settings_handlers import router as settings_router
 from handlers.roleplay_handlers import router as roleplay_router
+from handlers.settings_handlers import router as settings_router
+from handlers.user_handlers import router as user_router
 
 
 async def main():
