@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -18,30 +19,63 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.KEY }}
-        port: ${{ secrets.PORT }}
+        port: ${{ secrets.PORT || 22 }}
         script: |
-          echo "Starting deployment..."
+          echo "🚀 Starting deployment..."
           
           # Переход в директорию проекта
           cd /home/${{ secrets.USERNAME }}/CheekyBot
           
+          # Создание backup
+          echo "📦 Creating backup..."
+          if [ -d ".git" ]; then
+            git stash
+          fi
+          
           # Остановка текущих контейнеров
-          echo "Stopping current containers..."
-          docker-compose down
+          echo "🛑 Stopping current containers..."
+          docker-compose down || true
           
           # Получение последних изменений
-          echo "Pulling latest changes..."
-          git pull origin main
+          echo "📥 Pulling latest changes..."
+          if [ -d ".git" ]; then
+            git pull origin main
+          else
+            echo "❌ Git repository not found. Please clone the repository first."
+            exit 1
+          fi
+          
+          # Проверка наличия .env файла
+          if [ ! -f ".env" ]; then
+            echo "⚠️ .env file not found. Creating from example..."
+            cp config.env.example .env
+            echo "📝 Please configure .env file with proper values!"
+          fi
+          
+          # Создание директории для логов
+          mkdir -p logs
           
           # Пересборка и запуск контейнеров
-          echo "Building and starting containers..."
+          echo "🔨 Building and starting containers..."
           docker-compose up -d --build
           
+          # Ожидание запуска сервисов
+          echo "⏳ Waiting for services to start..."
+          sleep 30
+          
           # Проверка статуса
-          echo "Checking container status..."
+          echo "🔍 Checking container status..."
           docker-compose ps
           
-          echo "Deployment completed successfully!"
+          # Проверка логов на ошибки
+          echo "📋 Checking for errors in logs..."
+          if docker-compose logs bot | grep -i "error\|exception\|failed" | head -5; then
+            echo "⚠️ Found potential errors in logs"
+          else
+            echo "✅ No obvious errors found in logs"
+          fi
+          
+          echo "✅ Deployment completed successfully!"
           
     - name: Notify deployment status
       if: always()
