@@ -15,10 +15,10 @@ from database.models import (
 
 
 class DatabaseManager:
-    def __init__(self):
+    def __init__(self) -> None:
         self.pool: Optional[asyncpg.Pool] = None
 
-    async def connect(self):
+    async def connect(self) -> None:
         """Создание пула соединений с базой данных"""
         try:
             self.pool = await asyncpg.create_pool(
@@ -35,7 +35,7 @@ class DatabaseManager:
             logger.error(f"Failed to connect to database: {e}")
             raise
 
-    async def close(self):
+    async def close(self) -> None:
         """Закрытие пула соединений"""
         if self.pool:
             await self.pool.close()
@@ -43,6 +43,8 @@ class DatabaseManager:
 
     async def get_user(self, user_id: int) -> Optional[User]:
         """Получение пользователя по ID"""
+        if not self.pool:
+            raise RuntimeError("Database not connected")
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow(
                 """
@@ -72,6 +74,8 @@ class DatabaseManager:
 
     async def create_user(self, user: User) -> User:
         """Создание нового пользователя"""
+        if not self.pool:
+            raise RuntimeError("Database not connected")
         async with self.pool.acquire() as conn:
             await conn.execute(
                 """
@@ -103,6 +107,8 @@ class DatabaseManager:
 
     async def update_user(self, user: User) -> User:
         """Обновление данных пользователя"""
+        if not self.pool:
+            raise RuntimeError("Database not connected")
         async with self.pool.acquire() as conn:
             await conn.execute(
                 """
@@ -125,6 +131,8 @@ class DatabaseManager:
 
     async def save_conversation(self, conversation: Conversation) -> Conversation:
         """Сохранение диалога"""
+        if not self.pool:
+            raise RuntimeError("Database not connected")
         async with self.pool.acquire() as conn:
             await conn.execute(
                 """
@@ -155,6 +163,8 @@ class DatabaseManager:
 
     async def get_user_stats(self, user_id: int) -> Optional[UserStats]:
         """Получение статистики пользователя"""
+        if not self.pool:
+            raise RuntimeError("Database not connected")
         async with self.pool.acquire() as conn:
             row = await conn.fetchrow(
                 """
@@ -181,6 +191,8 @@ class DatabaseManager:
         self, user_id: int, limit: int = 10
     ) -> List[Conversation]:
         """Получение последних диалогов пользователя"""
+        if not self.pool:
+            raise RuntimeError("Database not connected")
         async with self.pool.acquire() as conn:
             rows = await conn.fetch(
                 """

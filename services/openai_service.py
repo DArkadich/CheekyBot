@@ -11,7 +11,7 @@ from database.models import CommunicationStyle, Gender
 
 
 class OpenAIService:
-    def __init__(self):
+    def __init__(self) -> None:
         self.client = openai.AsyncOpenAI(api_key=settings.openai_api_key)
         self.redis_client = redis.from_url(settings.redis_url)
         self.model = settings.openai_model
@@ -62,7 +62,7 @@ class OpenAIService:
         style: CommunicationStyle,
         user_gender: Gender,
         bot_gender: Gender,
-        stop_words: List[str] = None,
+        stop_words: Optional[List[str]] = None,
     ) -> Optional[str]:
         """Генерация ответа с использованием OpenAI API"""
 
