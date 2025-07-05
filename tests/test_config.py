@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import patch
 from config.settings import Settings, Gender, CommunicationStyle
+import os
 
 
 class TestSettings:
@@ -37,3 +38,16 @@ class TestSettings:
         assert settings.max_message_length == 4096
         assert settings.cache_ttl == 3600
         assert settings.log_level == "INFO"
+
+@pytest.fixture(autouse=True)
+def set_env_vars(monkeypatch):
+    monkeypatch.setenv("BOT_TOKEN", "test")
+    monkeypatch.setenv("OPENAI_API_KEY", "test")
+    monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
+
+def test_settings_load():
+    from config.settings import Settings
+    settings = Settings()
+    assert settings.bot_token == "test"
+    assert settings.openai_api_key == "test"
+    assert settings.database_url == "sqlite:///:memory:"
