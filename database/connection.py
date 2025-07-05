@@ -1,14 +1,16 @@
+from typing import Any, Dict, List, Optional
+
 import asyncpg
-from typing import Optional, List, Dict, Any
 from loguru import logger
+
 from config.settings import settings
 from database.models import (
-    User,
-    Conversation,
-    UserStats,
-    Gender,
-    CommunicationStyle,
     CREATE_TABLES_SQL,
+    CommunicationStyle,
+    Conversation,
+    Gender,
+    User,
+    UserStats,
 )
 
 
