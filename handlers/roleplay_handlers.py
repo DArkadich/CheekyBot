@@ -1,13 +1,13 @@
-from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery
+from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import CallbackQuery, Message
 from loguru import logger
 
 from database.connection import db
-from database.models import User, Conversation
-from services.openai_service import openai_service
+from database.models import Conversation, User
 from handlers.keyboards import get_back_keyboard, get_stop_keyboard
+from services.openai_service import openai_service
 
 router = Router()
 

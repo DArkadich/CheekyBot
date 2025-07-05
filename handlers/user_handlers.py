@@ -1,24 +1,24 @@
-from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery
+from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
+from aiogram.types import CallbackQuery, Message
 from loguru import logger
 
 from database.connection import db
-from database.models import User, Gender, CommunicationStyle, Conversation
-from services.openai_service import openai_service
+from database.models import CommunicationStyle, Conversation, Gender, User
 from handlers.keyboards import (
-    get_main_menu_keyboard,
-    get_gender_selection_keyboard,
+    get_back_keyboard,
     get_bot_gender_selection_keyboard,
     get_communication_style_keyboard,
-    get_settings_keyboard,
-    get_roleplay_scenarios_keyboard,
     get_consent_keyboard,
-    get_back_keyboard,
+    get_gender_selection_keyboard,
+    get_main_menu_keyboard,
+    get_roleplay_scenarios_keyboard,
+    get_settings_keyboard,
     get_stop_keyboard,
 )
+from services.openai_service import openai_service
 
 router = Router()
 

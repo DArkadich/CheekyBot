@@ -1,6 +1,7 @@
-from pydantic_settings import BaseSettings
-from typing import Optional
 from enum import Enum
+from typing import Optional
+
+from pydantic_settings import BaseSettings
 
 
 class Gender(str, Enum):

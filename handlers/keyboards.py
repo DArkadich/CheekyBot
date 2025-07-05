@@ -1,10 +1,11 @@
 from aiogram.types import (
-    InlineKeyboardMarkup,
     InlineKeyboardButton,
-    ReplyKeyboardMarkup,
+    InlineKeyboardMarkup,
     KeyboardButton,
+    ReplyKeyboardMarkup,
 )
-from database.models import Gender, CommunicationStyle
+
+from database.models import CommunicationStyle, Gender
 
 
 def get_main_menu_keyboard() -> ReplyKeyboardMarkup:
