@@ -1,3 +1,4 @@
+from datetime import datetime
 from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
@@ -35,7 +36,7 @@ class UserStates(StatesGroup):
 
 
 @router.message(Command("start"))
-async def cmd_start(message: Message, state: FSMContext):
+async def cmd_start(message: Message, state: FSMContext) -> None:
     """Обработчик команды /start"""
     user_id = message.from_user.id
 
@@ -60,7 +61,7 @@ async def cmd_start(message: Message, state: FSMContext):
 
 
 @router.message(Command("help"))
-async def cmd_help(message: Message):
+async def cmd_help(message: Message) -> None:
     """Обработчик команды /help"""
     help_text = """
 🤖 <b>CheekyBot - Бот для флирта и романтического общения</b>
@@ -89,7 +90,7 @@ async def cmd_help(message: Message):
 
 
 @router.message(Command("settings"))
-async def cmd_settings(message: Message):
+async def cmd_settings(message: Message) -> None:
     """Обработчик команды /settings"""
     await message.answer(
         "⚙️ <b>Настройки профиля</b>\n\nВыберите, что хотите изменить:",
@@ -99,7 +100,7 @@ async def cmd_settings(message: Message):
 
 
 @router.message(Command("stats"))
-async def cmd_stats(message: Message):
+async def cmd_stats(message: Message) -> None:
     """Обработчик команды /stats"""
     user_id = message.from_user.id
     stats = await db.get_user_stats(user_id)
@@ -120,7 +121,7 @@ async def cmd_stats(message: Message):
 
 
 @router.message(F.text == "💬 Начать общение")
-async def start_conversation(message: Message, state: FSMContext):
+async def start_conversation(message: Message, state: FSMContext) -> None:
     """Начало общения с ботом"""
     user_id = message.from_user.id
     user = await db.get_user(user_id)
@@ -147,19 +148,19 @@ async def start_conversation(message: Message, state: FSMContext):
 
 
 @router.message(F.text == "⚙️ Настройки")
-async def show_settings(message: Message):
+async def show_settings(message: Message) -> None:
     """Показать настройки"""
     await cmd_settings(message)
 
 
 @router.message(F.text == "📊 Статистика")
-async def show_stats(message: Message):
+async def show_stats(message: Message) -> None:
     """Показать статистику"""
     await cmd_stats(message)
 
 
 @router.message(F.text == "🎭 Ролевые игры")
-async def show_roleplay(message: Message):
+async def show_roleplay(message: Message) -> None:
     """Показать ролевые сценарии"""
     await message.answer(
         "🎭 <b>Ролевые сценарии</b>\n\nВыберите интересующий вас сценарий:",
@@ -169,13 +170,13 @@ async def show_roleplay(message: Message):
 
 
 @router.message(F.text == "❓ Помощь")
-async def show_help(message: Message):
+async def show_help(message: Message) -> None:
     """Показать помощь"""
     await cmd_help(message)
 
 
 @router.message(UserStates.in_conversation)
-async def handle_conversation(message: Message, state: FSMContext):
+async def handle_conversation(message: Message, state: FSMContext) -> None:
     """Обработка сообщений в режиме общения"""
     user_id = message.from_user.id
     user = await db.get_user(user_id)
@@ -214,7 +215,7 @@ async def handle_conversation(message: Message, state: FSMContext):
             communication_style=user.communication_style,
             tokens_used=len(message.text.split())
             + len(bot_response.split()),  # Примерный подсчет
-            created_at=None,  # Будет установлено базой данных
+            created_at=datetime.now(),  # Будет установлено базой данных
         )
         await db.save_conversation(conversation)
     else:
@@ -223,7 +224,7 @@ async def handle_conversation(message: Message, state: FSMContext):
 
 # Обработчики callback-запросов
 @router.callback_query(F.data.startswith("gender_"))
-async def handle_gender_selection(callback: CallbackQuery, state: FSMContext):
+async def handle_gender_selection(callback: CallbackQuery, state: FSMContext) -> None:
     """Обработка выбора пола пользователя"""
     gender_value = callback.data.split("_")[1]
     gender = Gender(gender_value)
@@ -239,7 +240,7 @@ async def handle_gender_selection(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data.startswith("bot_gender_"))
-async def handle_bot_gender_selection(callback: CallbackQuery, state: FSMContext):
+async def handle_bot_gender_selection(callback: CallbackQuery, state: FSMContext) -> None:
     """Обработка выбора пола бота"""
     bot_gender_value = callback.data.split("_")[2]
     bot_gender = Gender(bot_gender_value)
@@ -255,7 +256,7 @@ async def handle_bot_gender_selection(callback: CallbackQuery, state: FSMContext
 
 
 @router.callback_query(F.data.startswith("style_"))
-async def handle_style_selection(callback: CallbackQuery, state: FSMContext):
+async def handle_style_selection(callback: CallbackQuery, state: FSMContext) -> None:
     """Обработка выбора стиля общения"""
     style_value = callback.data.split("_")[1]
     style = CommunicationStyle(style_value)
@@ -275,8 +276,8 @@ async def handle_style_selection(callback: CallbackQuery, state: FSMContext):
         communication_style=style,
         consent_given=False,
         stop_words=[],
-        created_at=None,
-        updated_at=None,
+        created_at=datetime.now(),
+        updated_at=datetime.now(),
     )
 
     await db.create_user(user)
@@ -294,7 +295,7 @@ async def handle_style_selection(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "consent_yes")
-async def handle_consent_yes(callback: CallbackQuery, state: FSMContext):
+async def handle_consent_yes(callback: CallbackQuery, state: FSMContext) -> None:
     """Обработка согласия на контент 18+"""
     user_id = callback.from_user.id
     user = await db.get_user(user_id)
@@ -313,7 +314,7 @@ async def handle_consent_yes(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "consent_no")
-async def handle_consent_no(callback: CallbackQuery, state: FSMContext):
+async def handle_consent_no(callback: CallbackQuery, state: FSMContext) -> None:
     """Обработка отказа от контента 18+"""
     await callback.message.edit_text(
         "❌ Без согласия на контент 18+ бот не может работать.\n\n"
@@ -325,7 +326,7 @@ async def handle_consent_no(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "back_to_main")
-async def handle_back_to_main(callback: CallbackQuery, state: FSMContext):
+async def handle_back_to_main(callback: CallbackQuery, state: FSMContext) -> None:
     """Возврат в главное меню"""
     await callback.message.edit_text(
         "Главное меню:", reply_markup=get_main_menu_keyboard()
@@ -335,7 +336,7 @@ async def handle_back_to_main(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "stop_conversation")
-async def handle_stop_conversation(callback: CallbackQuery, state: FSMContext):
+async def handle_stop_conversation(callback: CallbackQuery, state: FSMContext) -> None:
     """Остановка общения"""
     await callback.message.edit_text(
         "🛑 Общение остановлено.\n\nИспользуйте '💬 Начать общение' для возобновления.",

@@ -21,7 +21,7 @@ class RoleplayStates(StatesGroup):
 
 
 @router.callback_query(F.data.startswith("scenario_"))
-async def start_roleplay_scenario(callback: CallbackQuery, state: FSMContext) -> None:
+async def start_roleplay_scenario(callback: CallbackQuery, state: FSMContext) -> None:  # type: ignore[misc]
     """Начало ролевого сценария"""
     user_id = callback.from_user.id
     user = await db.get_user(user_id)
@@ -79,7 +79,7 @@ async def start_roleplay_scenario(callback: CallbackQuery, state: FSMContext) ->
 
 
 @router.message(RoleplayStates.in_roleplay)
-async def handle_roleplay_message(message: Message, state: FSMContext) -> None:
+async def handle_roleplay_message(message: Message, state: FSMContext) -> None:  # type: ignore[misc]
     """Обработка сообщений в ролевой игре"""
     user_id = message.from_user.id
     user = await db.get_user(user_id)
@@ -125,7 +125,7 @@ async def handle_roleplay_message(message: Message, state: FSMContext) -> None:
 
 
 @router.callback_query(RoleplayStates.in_roleplay, F.data == "stop_conversation")
-async def stop_roleplay(callback: CallbackQuery, state: FSMContext) -> None:
+async def stop_roleplay(callback: CallbackQuery, state: FSMContext) -> None:  # type: ignore[misc]
     """Остановка ролевой игры"""
     await callback.message.edit_text(
         "🛑 Ролевая игра остановлена.\n\n"

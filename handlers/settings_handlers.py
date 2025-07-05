@@ -27,7 +27,7 @@ class SettingsStates(StatesGroup):
 
 
 @router.callback_query(F.data == "settings_gender")
-async def settings_gender(callback: CallbackQuery, state: FSMContext):
+async def settings_gender(callback: CallbackQuery, state: FSMContext) -> None:
     """Настройка пола пользователя"""
     await callback.message.edit_text(
         "👤 <b>Выберите ваш пол:</b>",
@@ -39,7 +39,7 @@ async def settings_gender(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "settings_bot_gender")
-async def settings_bot_gender(callback: CallbackQuery, state: FSMContext):
+async def settings_bot_gender(callback: CallbackQuery, state: FSMContext) -> None:
     """Настройка пола бота"""
     await callback.message.edit_text(
         "🤖 <b>Выберите пол бота:</b>",
@@ -51,7 +51,7 @@ async def settings_bot_gender(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "settings_style")
-async def settings_style(callback: CallbackQuery, state: FSMContext):
+async def settings_style(callback: CallbackQuery, state: FSMContext) -> None:
     """Настройка стиля общения"""
     await callback.message.edit_text(
         "💬 <b>Выберите стиль общения:</b>",
@@ -63,7 +63,7 @@ async def settings_style(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "settings_stop_words")
-async def settings_stop_words(callback: CallbackQuery, state: FSMContext):
+async def settings_stop_words(callback: CallbackQuery, state: FSMContext) -> None:
     """Настройка стоп-слов"""
     user_id = callback.from_user.id
     user = await db.get_user(user_id)
@@ -80,7 +80,7 @@ async def settings_stop_words(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "settings_consent")
-async def settings_consent(callback: CallbackQuery):
+async def settings_consent(callback: CallbackQuery) -> None:
     """Настройка согласия"""
     user_id = callback.from_user.id
     user = await db.get_user(user_id)
@@ -98,7 +98,7 @@ async def settings_consent(callback: CallbackQuery):
 
 # Обработчики изменения настроек
 @router.callback_query(SettingsStates.waiting_for_gender, F.data.startswith("gender_"))
-async def change_gender(callback: CallbackQuery, state: FSMContext):
+async def change_gender(callback: CallbackQuery, state: FSMContext) -> None:
     """Изменение пола пользователя"""
     gender_value = callback.data.split("_")[1]
     gender = Gender(gender_value)
