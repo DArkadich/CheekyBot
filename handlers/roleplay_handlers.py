@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -57,7 +59,6 @@ async def start_roleplay_scenario(callback: CallbackQuery, state: FSMContext) ->
         await state.set_state(RoleplayStates.in_roleplay)
 
         # Сохраняем начало сценария
-        from datetime import datetime
         conversation = Conversation(
             id=0,
             user_id=user_id,
