@@ -33,7 +33,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: safety-report
+        name: safety-report-${{ github.run_id }}
         path: safety-report.json
         
     - name: Run bandit security check
@@ -44,7 +44,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: bandit-report
+        name: bandit-report-${{ github.run_id }}
         path: bandit-report.json
         
     - name: Check for secrets in code
