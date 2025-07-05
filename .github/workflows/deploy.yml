@@ -1,0 +1,53 @@
+name: Deploy to Timeweb
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        script: |
+          echo "Starting deployment..."
+          
+          # Переход в директорию проекта
+          cd /home/${{ secrets.USERNAME }}/CheekyBot
+          
+          # Остановка текущих контейнеров
+          echo "Stopping current containers..."
+          docker-compose down
+          
+          # Получение последних изменений
+          echo "Pulling latest changes..."
+          git pull origin main
+          
+          # Пересборка и запуск контейнеров
+          echo "Building and starting containers..."
+          docker-compose up -d --build
+          
+          # Проверка статуса
+          echo "Checking container status..."
+          docker-compose ps
+          
+          echo "Deployment completed successfully!"
+          
+    - name: Notify deployment status
+      if: always()
+      run: |
+        if [ ${{ job.status }} == 'success' ]; then
+          echo "✅ Deployment successful!"
+        else
+          echo "❌ Deployment failed!"
+        fi 

@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  bot:
+    build: .
+    container_name: cheekybot
+    restart: unless-stopped
+    environment:
+      - BOT_TOKEN=${BOT_TOKEN}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4-turbo-preview}
+      - DATABASE_URL=postgresql://cheekybot:password@postgres:5432/cheekybot
+      - REDIS_URL=redis://redis:6379/0
+      - DEFAULT_GENDER=${DEFAULT_GENDER:-neutral}
+      - MAX_MESSAGE_LENGTH=${MAX_MESSAGE_LENGTH:-4096}
+      - CACHE_TTL=${CACHE_TTL:-3600}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - cheekybot-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: cheekybot-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=cheekybot
+      - POSTGRES_USER=cheekybot
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - cheekybot-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: cheekybot-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - cheekybot-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  cheekybot-network:
+    driver: bridge 
