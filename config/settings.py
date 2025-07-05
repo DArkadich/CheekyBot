@@ -19,29 +19,29 @@ class CommunicationStyle(str, Enum):
 class Settings(BaseSettings):
     # Telegram Bot Configuration
     bot_token: str
-    
+
     # OpenAI Configuration
     openai_api_key: str
     openai_model: str = "gpt-4-turbo-preview"
-    
+
     # Database Configuration
     database_url: str
-    
+
     # Redis Configuration
     redis_url: str = "redis://localhost:6379/0"
-    
+
     # Bot Settings
     default_gender: Gender = Gender.NEUTRAL
     max_message_length: int = 4096
     cache_ttl: int = 3600
-    
+
     # Logging
     log_level: str = "INFO"
-    
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
 
 
 # Global settings instance
-settings = Settings() 
+settings = Settings()

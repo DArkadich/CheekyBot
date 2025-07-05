@@ -20,9 +20,9 @@ class TestModels:
             stop_words=["stop", "halt"],
             created_at=datetime.now(),
             updated_at=datetime.now(),
-            is_active=True
+            is_active=True,
         )
-        
+
         assert user.user_id == 123456789
         assert user.username == "test_user"
         assert user.first_name == "Test"
@@ -42,9 +42,9 @@ class TestModels:
             bot_response="Привет! Как дела?",
             communication_style=CommunicationStyle.PLAYFUL,
             tokens_used=10,
-            created_at=datetime.now()
+            created_at=datetime.now(),
         )
-        
+
         assert conversation.id == 1
         assert conversation.user_id == 123456789
         assert conversation.message == "Привет!"
@@ -61,10 +61,10 @@ class TestModels:
             favorite_style=CommunicationStyle.ROMANTIC,
             last_activity=datetime.now(),
             created_at=datetime.now(),
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
-        
+
         assert stats.user_id == 123456789
         assert stats.total_messages == 100
         assert stats.total_tokens == 5000
-        assert stats.favorite_style == CommunicationStyle.ROMANTIC 
+        assert stats.favorite_style == CommunicationStyle.ROMANTIC
