@@ -1,6 +1,8 @@
-import pytest
 from datetime import datetime
-from database.models import User, Conversation, UserStats, Gender, CommunicationStyle
+
+import pytest
+
+from database.models import CommunicationStyle, Conversation, Gender, User, UserStats
 
 
 class TestModels:
