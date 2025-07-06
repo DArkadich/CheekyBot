@@ -178,7 +178,7 @@ async def show_help(message: Message) -> None:
 
 @router.message(UserStates.in_conversation)  # type: ignore[misc]
 async def handle_conversation(message: Message, state: FSMContext) -> None:
-    """Обработка сообщений в режиме общения"""
+    """Обработка сообщений в режиме общения с поддержкой истории диалогов"""
     user_id = message.from_user.id
     user = await db.get_user(user_id)
 
@@ -198,13 +198,28 @@ async def handle_conversation(message: Message, state: FSMContext) -> None:
                     )
                     return
 
-        # Генерируем ответ
+        # Получаем историю диалогов для контекста
+        conversation_history = await db.get_recent_conversations(user_id, limit=10)
+
+        # Формируем историю для OpenAI API
+        history_for_api = []
+        if conversation_history:
+            for conv in conversation_history:
+                # Добавляем сообщение пользователя
+                history_for_api.append({"role": "user", "content": conv.message})
+                # Добавляем ответ бота
+                history_for_api.append(
+                    {"role": "assistant", "content": conv.bot_response}
+                )
+
+        # Генерируем ответ с учетом истории
         bot_response = await openai_service.generate_response(
             message.text,
             user.communication_style,
             user.gender,
             user.bot_gender,
-            user.stop_words,
+            conversation_history=history_for_api,
+            stop_words=user.stop_words,
         )
 
         if bot_response:
