@@ -101,7 +101,9 @@ async def handle_roleplay_message(message: Message, state: FSMContext) -> None:
             message_lower = message.text.lower()
             for word in user.stop_words:
                 if word.lower() in message_lower:
-                    await message.answer("Извини, но я не могу ответить на это сообщение.")
+                    await message.answer(
+                        "Извини, но я не могу ответить на это сообщение."
+                    )
                     return
 
     # Генерируем ответ в контексте ролевой игры

@@ -21,11 +21,13 @@ def test_settings_creation():
         openai_api_key="test",
         database_url="sqlite:///:memory:",
     )
-    
+
     assert test_settings.bot_token == "test"
     assert test_settings.openai_api_key == "test"
     assert test_settings.database_url == "sqlite:///:memory:"
-    assert test_settings.redis_url == "redis://localhost:6379/0"  # значение по умолчанию
+    assert (
+        test_settings.redis_url == "redis://localhost:6379/0"
+    )  # значение по умолчанию
     assert test_settings.default_gender == "neutral"  # значение по умолчанию
     assert test_settings.max_message_length == 4096  # значение по умолчанию
     assert test_settings.cache_ttl == 3600  # значение по умолчанию

@@ -17,7 +17,7 @@ def mock_env_vars():
         "CACHE_TTL": "3600",
         "LOG_LEVEL": "INFO",
     }
-    
+
     with patch.dict(os.environ, env_vars):
         yield
 
@@ -27,7 +27,7 @@ def settings():
     """Фикстура для создания Settings с тестовыми данными"""
     # Импортируем Settings только внутри фикстуры, когда переменные окружения уже установлены
     from config.settings import Settings
-    
+
     return Settings(
         bot_token="test_bot_token",
         openai_api_key="test_openai_api_key",
@@ -38,4 +38,4 @@ def settings():
         max_message_length=4096,
         cache_ttl=3600,
         log_level="INFO",
-    ) 
+    )

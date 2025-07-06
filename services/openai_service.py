@@ -24,7 +24,7 @@ class OpenAIService:
             )
         else:
             self.settings = settings
-            
+
         self.client = openai.AsyncOpenAI(api_key=self.settings.openai_api_key)
         self.redis_client = redis.from_url(self.settings.redis_url)
         self.model = self.settings.openai_model

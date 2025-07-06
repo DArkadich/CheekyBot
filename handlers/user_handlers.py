@@ -192,7 +192,9 @@ async def handle_conversation(message: Message, state: FSMContext) -> None:
             message_lower = message.text.lower()
             for word in user.stop_words:
                 if word.lower() in message_lower:
-                    await message.answer("Извини, но я не могу ответить на это сообщение.")
+                    await message.answer(
+                        "Извини, но я не могу ответить на это сообщение."
+                    )
                     return
 
         # Генерируем ответ
@@ -245,7 +247,9 @@ async def handle_gender_selection(callback: CallbackQuery, state: FSMContext) ->
 
 
 @router.callback_query(F.data.startswith("bot_gender_"))  # type: ignore[misc]
-async def handle_bot_gender_selection(callback: CallbackQuery, state: FSMContext) -> None:
+async def handle_bot_gender_selection(
+    callback: CallbackQuery, state: FSMContext
+) -> None:
     """Обработка выбора пола бота"""
     if callback.message is None:
         return
