@@ -50,7 +50,10 @@ async def main() -> None:
     logger.info("Starting CheekyBot...")
 
     # Инициализация бота и диспетчера
-    bot = Bot(token=app_settings.bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+    bot = Bot(
+        token=app_settings.bot_token,
+        default=DefaultBotProperties(parse_mode=ParseMode.HTML),
+    )
     storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
 
