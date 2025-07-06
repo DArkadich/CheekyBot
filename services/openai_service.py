@@ -206,7 +206,7 @@ class OpenAIService:
 
             response = await self.client.chat.completions.create(
                 model=self.model,
-                messages=messages,
+                messages=messages,  # type: ignore[arg-type]
                 max_tokens=500,
                 temperature=0.8,
                 presence_penalty=0.1,
