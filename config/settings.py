@@ -44,5 +44,9 @@ class Settings(BaseSettings):
         env_file_encoding = "utf-8"
 
 
-# Global settings instance
-settings = Settings()
+# Global settings instance - создаем только если переменные окружения доступны
+try:
+    settings = Settings()
+except Exception:
+    # В тестах или CI/CD переменные окружения могут отсутствовать
+    settings = None

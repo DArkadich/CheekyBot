@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 import asyncpg
 from loguru import logger
 
-from config.settings import settings
+from config.settings import settings, Settings
 from database.models import (
     CREATE_TABLES_SQL,
     CommunicationStyle,
@@ -17,12 +17,24 @@ from database.models import (
 class DatabaseManager:
     def __init__(self) -> None:
         self.pool: Optional[asyncpg.Pool] = None
+        # Используем settings или создаем новый экземпляр
+        if settings is None:
+            # В тестах или CI/CD создаем с дефолтными значениями
+            self.settings = Settings(
+                bot_token="dummy_token",
+                openai_api_key="dummy_key",
+                database_url="postgresql://test:test@localhost:5432/test_db",
+                redis_url="redis://localhost:6379/0",
+                openai_model="gpt-4-turbo-preview",
+            )
+        else:
+            self.settings = settings
 
     async def connect(self) -> None:
         """Создание пула соединений с базой данных"""
         try:
             self.pool = await asyncpg.create_pool(
-                settings.database_url, min_size=5, max_size=20, command_timeout=60
+                self.settings.database_url, min_size=5, max_size=20, command_timeout=60
             )
             logger.info("Database connection pool created successfully")
 

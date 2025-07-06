@@ -7,7 +7,7 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 from loguru import logger
 
-from config.settings import settings
+from config.settings import settings, Settings
 from database.connection import db
 from handlers.roleplay_handlers import router as roleplay_router
 from handlers.settings_handlers import router as settings_router
@@ -17,25 +17,39 @@ from handlers.user_handlers import router as user_router
 async def main() -> None:
     """Главная функция запуска бота"""
 
+    # Используем settings или создаем новый экземпляр
+    if settings is None:
+        # В тестах или CI/CD создаем с дефолтными значениями
+        app_settings = Settings(
+            bot_token="dummy_token",
+            openai_api_key="dummy_key",
+            database_url="postgresql://test:test@localhost:5432/test_db",
+            redis_url="redis://localhost:6379/0",
+            openai_model="gpt-4-turbo-preview",
+            log_level="INFO",
+        )
+    else:
+        app_settings = settings
+
     # Настройка логирования
     logger.remove()
     logger.add(
         sys.stdout,
         format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
-        level=settings.log_level,
+        level=app_settings.log_level,
     )
     logger.add(
         "logs/bot.log",
         rotation="1 day",
         retention="7 days",
         format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} - {message}",
-        level=settings.log_level,
+        level=app_settings.log_level,
     )
 
     logger.info("Starting CheekyBot...")
 
     # Инициализация бота и диспетчера
-    bot = Bot(token=settings.bot_token, parse_mode=ParseMode.HTML)
+    bot = Bot(token=app_settings.bot_token, parse_mode=ParseMode.HTML)
     storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
 

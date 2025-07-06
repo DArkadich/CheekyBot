@@ -6,15 +6,28 @@ import openai
 import redis
 from loguru import logger
 
-from config.settings import settings
+from config.settings import settings, Settings
 from database.models import CommunicationStyle, Gender
 
 
 class OpenAIService:
-    def __init__(self) -> None:
-        self.client = openai.AsyncOpenAI(api_key=settings.openai_api_key)
-        self.redis_client = redis.from_url(settings.redis_url)
-        self.model = settings.openai_model
+    def __init__(self):
+        # Используем settings или создаем новый экземпляр
+        if settings is None:
+            # В тестах или CI/CD создаем с дефолтными значениями
+            self.settings = Settings(
+                bot_token="dummy_token",
+                openai_api_key="dummy_key",
+                database_url="dummy_url",
+                redis_url="redis://localhost:6379/0",
+                openai_model="gpt-4-turbo-preview",
+            )
+        else:
+            self.settings = settings
+            
+        self.client = openai.AsyncOpenAI(api_key=self.settings.openai_api_key)
+        self.redis_client = redis.from_url(self.settings.redis_url)
+        self.model = self.settings.openai_model
 
     def _generate_cache_key(
         self,
@@ -117,7 +130,7 @@ class OpenAIService:
                 return None
 
             # Сохранение в кеш
-            self.redis_client.setex(cache_key, settings.cache_ttl, bot_response)
+            self.redis_client.setex(cache_key, self.settings.cache_ttl, bot_response)
 
             logger.info(f"Generated response for message: {message[:50]}...")
             return bot_response

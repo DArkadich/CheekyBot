@@ -2,8 +2,6 @@ import os
 import pytest
 from unittest.mock import patch
 
-from config.settings import Settings
-
 
 @pytest.fixture(autouse=True)
 def mock_env_vars():
@@ -27,6 +25,9 @@ def mock_env_vars():
 @pytest.fixture
 def settings():
     """Фикстура для создания Settings с тестовыми данными"""
+    # Импортируем Settings только внутри фикстуры, когда переменные окружения уже установлены
+    from config.settings import Settings
+    
     return Settings(
         bot_token="test_bot_token",
         openai_api_key="test_openai_api_key",

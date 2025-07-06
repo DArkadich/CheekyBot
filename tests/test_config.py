@@ -1,27 +1,32 @@
 import pytest
+from config.settings import Settings
 
 
-@pytest.fixture(autouse=True)
-def set_env_vars(monkeypatch):
-    monkeypatch.setenv("BOT_TOKEN", "test")
-    monkeypatch.setenv("OPENAI_API_KEY", "test")
-    monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
-    monkeypatch.setenv("REDIS_URL", "redis://localhost:6379/0")
-    monkeypatch.setenv("DEFAULT_GENDER", "neutral")
-    monkeypatch.setenv("MAX_MESSAGE_LENGTH", "4096")
-    monkeypatch.setenv("CACHE_TTL", "3600")
-    monkeypatch.setenv("LOG_LEVEL", "INFO")
-
-
-def test_settings_load():
-    from config.settings import Settings
-
-    settings = Settings()
-    assert settings.bot_token == "test"
-    assert settings.openai_api_key == "test"
-    assert settings.database_url == "sqlite:///:memory:"
+def test_settings_defaults(settings):
+    """Тест значений по умолчанию для настроек"""
+    assert settings.bot_token == "test_bot_token"
+    assert settings.openai_api_key == "test_openai_api_key"
+    assert settings.database_url == "postgresql://test:test@localhost:5432/test_db"
     assert settings.redis_url == "redis://localhost:6379/0"
     assert settings.default_gender == "neutral"
     assert settings.max_message_length == 4096
     assert settings.cache_ttl == 3600
     assert settings.log_level == "INFO"
+
+
+def test_settings_creation():
+    """Тест создания настроек с явными параметрами"""
+    test_settings = Settings(
+        bot_token="test",
+        openai_api_key="test",
+        database_url="sqlite:///:memory:",
+    )
+    
+    assert test_settings.bot_token == "test"
+    assert test_settings.openai_api_key == "test"
+    assert test_settings.database_url == "sqlite:///:memory:"
+    assert test_settings.redis_url == "redis://localhost:6379/0"  # значение по умолчанию
+    assert test_settings.default_gender == "neutral"  # значение по умолчанию
+    assert test_settings.max_message_length == 4096  # значение по умолчанию
+    assert test_settings.cache_ttl == 3600  # значение по умолчанию
+    assert test_settings.log_level == "INFO"  # значение по умолчанию
