@@ -109,7 +109,12 @@ sudo systemctl start redis-server
 
 ### 4. Запуск бота
 ```bash
-python main.py
+docker compose up -d
+```
+
+### 5. Просмотр логов
+```bash
+docker compose logs -f bot
 ```
 
 ## 📁 Структура проекта
@@ -184,8 +189,9 @@ curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
 
 # Установка Docker Compose
-sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
+# Docker Compose теперь встроен в Docker Desktop
+# Для Linux может потребоваться установка:
+# sudo apt-get update && sudo apt-get install docker-compose-plugin
 ```
 
 ### 2. Клонирование и настройка
@@ -233,8 +239,8 @@ jobs:
         script: |
           cd /path/to/CheekyBot
           git pull origin main
-          docker-compose down
-          docker-compose up -d --build
+          docker compose down
+docker compose up -d --build
 ```
 
 ## 📝 API Документация

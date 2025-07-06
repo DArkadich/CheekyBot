@@ -170,14 +170,14 @@ git push origin feature/your-feature-name
 ### Docker
 ```bash
 # Запуск в режиме разработки
-docker-compose up -d postgres redis
+docker compose up -d postgres redis
 python main.py
 
 # Полный запуск
-docker-compose up -d
+docker compose up -d
 
 # Просмотр логов
-docker-compose logs -f bot
+docker compose logs -f bot
 ```
 
 ### Git
