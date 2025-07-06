@@ -1,7 +1,7 @@
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message, InlineKeyboardMarkup
 from loguru import logger
 
 from database.connection import db
@@ -199,16 +199,16 @@ async def change_style(callback: CallbackQuery, state: FSMContext) -> None:
 @router.message(SettingsStates.waiting_for_stop_words)
 async def change_stop_words(message: Message, state: FSMContext) -> None:
     """Изменение стоп-слов"""
+    if not isinstance(message, Message) or message.text is None:
+        await message.answer("❌ Ошибка: пустое сообщение")
+        await state.clear()
+        return
+
     user_id = message.from_user.id
     user = await db.get_user(user_id)
 
     if not user:
         await message.answer("❌ Ошибка: пользователь не найден")
-        await state.clear()
-        return
-
-    if message.text is None:
-        await message.answer("❌ Ошибка: пустое сообщение")
         await state.clear()
         return
 

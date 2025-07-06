@@ -3,7 +3,7 @@ from aiogram import F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message, InlineKeyboardMarkup
 from loguru import logger
 
 from database.connection import db
@@ -186,44 +186,43 @@ async def handle_conversation(message: Message, state: FSMContext) -> None:
         await state.clear()
         return
 
-    if message.text is None:
-        await message.answer("Ошибка: пустое сообщение.")
-        return
+    if isinstance(message, Message) and message.text is not None:
+        # Проверяем стоп-слова
+        if user.stop_words:
+            message_lower = message.text.lower()
+            for word in user.stop_words:
+                if word.lower() in message_lower:
+                    await message.answer("Извини, но я не могу ответить на это сообщение.")
+                    return
 
-    # Проверяем стоп-слова
-    if user.stop_words:
-        message_lower = message.text.lower()
-        for word in user.stop_words:
-            if word.lower() in message_lower:
-                await message.answer("Извини, но я не могу ответить на это сообщение.")
-                return
-
-    # Генерируем ответ
-    bot_response = await openai_service.generate_response(
-        message.text,
-        user.communication_style,
-        user.gender,
-        user.bot_gender,
-        user.stop_words,
-    )
-
-    if bot_response:
-        await message.answer(bot_response)
-
-        # Сохраняем диалог в базу
-        conversation = Conversation(
-            id=0,  # Будет установлено базой данных
-            user_id=user_id,
-            message=message.text,
-            bot_response=bot_response,
-            communication_style=user.communication_style,
-            tokens_used=len(message.text.split())
-            + len(bot_response.split()),  # Примерный подсчет
-            created_at=datetime.now(),  # Будет установлено базой данных
+        # Генерируем ответ
+        bot_response = await openai_service.generate_response(
+            message.text,
+            user.communication_style,
+            user.gender,
+            user.bot_gender,
+            user.stop_words,
         )
-        await db.save_conversation(conversation)
+
+        if bot_response:
+            await message.answer(bot_response)
+
+            # Сохраняем диалог в базу
+            conversation = Conversation(
+                id=0,  # Будет установлено базой данных
+                user_id=user_id,
+                message=message.text,
+                bot_response=bot_response,
+                communication_style=user.communication_style,
+                tokens_used=len(message.text.split())
+                + len(bot_response.split()),  # Примерный подсчет
+                created_at=datetime.now(),  # Будет установлено базой данных
+            )
+            await db.save_conversation(conversation)
+        else:
+            await message.answer("Извини, произошла ошибка. Попробуй еще раз.")
     else:
-        await message.answer("Извини, произошла ошибка. Попробуй еще раз.")
+        await message.answer("Ошибка: пустое сообщение.")
 
 
 # Обработчики callback-запросов

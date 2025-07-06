@@ -3,7 +3,7 @@ from datetime import datetime
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import CallbackQuery, Message
+from aiogram.types import CallbackQuery, Message, InlineKeyboardMarkup
 from loguru import logger
 
 from database.connection import db
@@ -91,17 +91,18 @@ async def handle_roleplay_message(message: Message, state: FSMContext) -> None:
         await state.clear()
         return
 
-    if message.text is None:
+    if isinstance(message, Message) and message.text is None:
         await message.answer("Ошибка: пустое сообщение.")
         return
 
     # Проверяем стоп-слова
     if user.stop_words:
-        message_lower = message.text.lower()
-        for word in user.stop_words:
-            if word.lower() in message_lower:
-                await message.answer("Извини, но я не могу ответить на это сообщение.")
-                return
+        if isinstance(message, Message) and message.text is not None:
+            message_lower = message.text.lower()
+            for word in user.stop_words:
+                if word.lower() in message_lower:
+                    await message.answer("Извини, но я не могу ответить на это сообщение.")
+                    return
 
     # Генерируем ответ в контексте ролевой игры
     bot_response = await openai_service.generate_response(
