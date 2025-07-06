@@ -4,6 +4,7 @@ from typing import Any
 
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
+from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.memory import MemoryStorage
 from loguru import logger
 
@@ -49,7 +50,7 @@ async def main() -> None:
     logger.info("Starting CheekyBot...")
 
     # Инициализация бота и диспетчера
-    bot = Bot(token=app_settings.bot_token, parse_mode=ParseMode.HTML)
+    bot = Bot(token=app_settings.bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
 
