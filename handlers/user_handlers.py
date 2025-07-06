@@ -20,6 +20,7 @@ from handlers.keyboards import (
     get_settings_keyboard,
     get_stop_keyboard,
 )
+from services.context_manager import context_manager
 from services.openai_service import openai_service
 
 router = Router()
@@ -178,7 +179,7 @@ async def show_help(message: Message) -> None:
 
 @router.message(UserStates.in_conversation)  # type: ignore[misc]
 async def handle_conversation(message: Message, state: FSMContext) -> None:
-    """Обработка сообщений в режиме общения с поддержкой истории диалогов"""
+    """Обработка сообщений в режиме общения с оптимизированным контекстом"""
     user_id = message.from_user.id
     user = await db.get_user(user_id)
 
@@ -198,34 +199,30 @@ async def handle_conversation(message: Message, state: FSMContext) -> None:
                     )
                     return
 
-        # Получаем историю диалогов для контекста
-        conversation_history = await db.get_recent_conversations(user_id, limit=10)
+        # Получаем оптимизированный контекст
+        conversation_history = await context_manager.get_optimized_context(
+            user_id, max_tokens=800
+        )
 
-        # Формируем историю для OpenAI API
-        history_for_api = []
-        if conversation_history:
-            for conv in conversation_history:
-                # Добавляем сообщение пользователя
-                history_for_api.append({"role": "user", "content": conv.message})
-                # Добавляем ответ бота
-                history_for_api.append(
-                    {"role": "assistant", "content": conv.bot_response}
-                )
-
-        # Генерируем ответ с учетом истории
+        # Генерируем ответ с учетом оптимизированного контекста
         bot_response = await openai_service.generate_response(
             message.text,
             user.communication_style,
             user.gender,
             user.bot_gender,
-            conversation_history=history_for_api,
+            conversation_history=conversation_history,
             stop_words=user.stop_words,
         )
 
         if bot_response:
             await message.answer(bot_response)
 
-            # Сохраняем диалог в базу
+            # Добавляем сообщение в контекст
+            await context_manager.add_message_to_context(
+                user_id, message.text, bot_response, user.communication_style.value
+            )
+
+            # Сохраняем диалог в базу (для статистики и аналитики)
             conversation = Conversation(
                 id=0,  # Будет установлено базой данных
                 user_id=user_id,
@@ -376,3 +373,37 @@ async def handle_stop_conversation(callback: CallbackQuery, state: FSMContext) -
     )
     await state.clear()
     await callback.answer()
+
+
+@router.message(Command("clear_context"))  # type: ignore[misc]
+async def cmd_clear_context(message: Message) -> None:
+    """Очистка контекста диалога"""
+    user_id = message.from_user.id
+
+    await context_manager.clear_context(user_id)
+
+    await message.answer(
+        "🧹 Контекст диалога очищен! Теперь я буду отвечать как при первом знакомстве."
+    )
+
+
+@router.message(Command("context_info"))  # type: ignore[misc]
+async def cmd_context_info(message: Message) -> None:
+    """Информация о текущем контексте"""
+    user_id = message.from_user.id
+
+    context = await context_manager.get_context(user_id)
+    preferences = await context_manager.get_user_preferences(user_id)
+
+    context_info = f"""
+📊 <b>Информация о контексте</b>
+
+💬 Сообщений в контексте: {len(context) // 2}
+🎭 Предпочитаемый стиль: {preferences['communication_style']}
+😊 Настроение: {preferences['mood']}
+📝 Темы: {', '.join(preferences['topics']) if preferences['topics'] else 'не определены'}
+
+<i>Контекст автоматически очищается через час неактивности</i>
+    """
+
+    await message.answer(context_info, parse_mode="HTML")
