@@ -1,10 +1,11 @@
 """
 Сервис для управления контекстом диалогов с оптимизацией для масштабирования
 """
-import json
 import hashlib
-from typing import Dict, List, Optional, Tuple, Any, Sequence
+import json
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Sequence, Tuple
+
 import redis
 from loguru import logger
 
