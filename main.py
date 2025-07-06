@@ -72,8 +72,8 @@ async def main() -> None:
 
     # Обработчик ошибок
     @dp.error()
-    async def error_handler(update: Any, exception: Exception) -> bool:
-        logger.error(f"Error handling update {update}: {exception}")
+    async def error_handler(event: Any, exception: Exception) -> bool:
+        logger.error(f"Error handling event {event}: {exception}")
         return True
 
     logger.info("Bot started successfully!")

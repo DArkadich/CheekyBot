@@ -18,6 +18,7 @@ def get_main_menu_keyboard() -> ReplyKeyboardMarkup:
         ],
         resize_keyboard=True,
         input_field_placeholder="Выберите действие...",
+        is_persistent=True,
     )
     return keyboard
 
