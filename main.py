@@ -54,7 +54,7 @@ async def main() -> None:
 
     # Обработчик ошибок
     @dp.error()
-    async def error_handler(update: Any, exception: Exception) -> bool:  # type: ignore[misc]
+    async def error_handler(update: Any, exception: Exception) -> bool:
         logger.error(f"Error handling update {update}: {exception}")
         return True
 

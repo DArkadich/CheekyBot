@@ -35,7 +35,7 @@ class UserStates(StatesGroup):
     in_conversation = State()
 
 
-@router.message(Command("start"))
+@router.message(Command("start"))  # type: ignore[misc]
 async def cmd_start(message: Message, state: FSMContext) -> None:
     """Обработчик команды /start"""
     user_id = message.from_user.id
@@ -60,7 +60,7 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
         await state.set_state(UserStates.waiting_for_gender)
 
 
-@router.message(Command("help"))
+@router.message(Command("help"))  # type: ignore[misc]
 async def cmd_help(message: Message) -> None:
     """Обработчик команды /help"""
     help_text = """
@@ -89,7 +89,7 @@ async def cmd_help(message: Message) -> None:
     await message.answer(help_text, parse_mode="HTML")
 
 
-@router.message(Command("settings"))
+@router.message(Command("settings"))  # type: ignore[misc]
 async def cmd_settings(message: Message) -> None:
     """Обработчик команды /settings"""
     await message.answer(
@@ -99,7 +99,7 @@ async def cmd_settings(message: Message) -> None:
     )
 
 
-@router.message(Command("stats"))
+@router.message(Command("stats"))  # type: ignore[misc]
 async def cmd_stats(message: Message) -> None:
     """Обработчик команды /stats"""
     user_id = message.from_user.id
@@ -120,7 +120,7 @@ async def cmd_stats(message: Message) -> None:
     await message.answer(stats_text, parse_mode="HTML")
 
 
-@router.message(F.text == "💬 Начать общение")
+@router.message(F.text == "💬 Начать общение")  # type: ignore[misc]
 async def start_conversation(message: Message, state: FSMContext) -> None:
     """Начало общения с ботом"""
     user_id = message.from_user.id
@@ -147,19 +147,19 @@ async def start_conversation(message: Message, state: FSMContext) -> None:
     await state.set_state(UserStates.in_conversation)
 
 
-@router.message(F.text == "⚙️ Настройки")
+@router.message(F.text == "⚙️ Настройки")  # type: ignore[misc]
 async def show_settings(message: Message) -> None:
     """Показать настройки"""
     await cmd_settings(message)
 
 
-@router.message(F.text == "📊 Статистика")
+@router.message(F.text == "📊 Статистика")  # type: ignore[misc]
 async def show_stats(message: Message) -> None:
     """Показать статистику"""
     await cmd_stats(message)
 
 
-@router.message(F.text == "🎭 Ролевые игры")
+@router.message(F.text == "🎭 Ролевые игры")  # type: ignore[misc]
 async def show_roleplay(message: Message) -> None:
     """Показать ролевые сценарии"""
     await message.answer(
@@ -169,13 +169,13 @@ async def show_roleplay(message: Message) -> None:
     )
 
 
-@router.message(F.text == "❓ Помощь")
+@router.message(F.text == "❓ Помощь")  # type: ignore[misc]
 async def show_help(message: Message) -> None:
     """Показать помощь"""
     await cmd_help(message)
 
 
-@router.message(UserStates.in_conversation)
+@router.message(UserStates.in_conversation)  # type: ignore[misc]
 async def handle_conversation(message: Message, state: FSMContext) -> None:
     """Обработка сообщений в режиме общения"""
     user_id = message.from_user.id
@@ -226,7 +226,7 @@ async def handle_conversation(message: Message, state: FSMContext) -> None:
 
 
 # Обработчики callback-запросов
-@router.callback_query(F.data.startswith("gender_"))
+@router.callback_query(F.data.startswith("gender_"))  # type: ignore[misc]
 async def handle_gender_selection(callback: CallbackQuery, state: FSMContext) -> None:
     """Обработка выбора пола пользователя"""
     if callback.message is None:
@@ -244,7 +244,7 @@ async def handle_gender_selection(callback: CallbackQuery, state: FSMContext) ->
     await callback.answer()
 
 
-@router.callback_query(F.data.startswith("bot_gender_"))
+@router.callback_query(F.data.startswith("bot_gender_"))  # type: ignore[misc]
 async def handle_bot_gender_selection(callback: CallbackQuery, state: FSMContext) -> None:
     """Обработка выбора пола бота"""
     if callback.message is None:
@@ -262,7 +262,7 @@ async def handle_bot_gender_selection(callback: CallbackQuery, state: FSMContext
     await callback.answer()
 
 
-@router.callback_query(F.data.startswith("style_"))
+@router.callback_query(F.data.startswith("style_"))  # type: ignore[misc]
 async def handle_style_selection(callback: CallbackQuery, state: FSMContext) -> None:
     """Обработка выбора стиля общения"""
     if callback.message is None:
@@ -308,7 +308,7 @@ async def handle_style_selection(callback: CallbackQuery, state: FSMContext) -> 
     await callback.answer()
 
 
-@router.callback_query(F.data == "consent_yes")
+@router.callback_query(F.data == "consent_yes")  # type: ignore[misc]
 async def handle_consent_yes(callback: CallbackQuery, state: FSMContext) -> None:
     """Обработка согласия на контент 18+"""
     user_id = callback.from_user.id
@@ -327,7 +327,7 @@ async def handle_consent_yes(callback: CallbackQuery, state: FSMContext) -> None
     await callback.answer()
 
 
-@router.callback_query(F.data == "consent_no")
+@router.callback_query(F.data == "consent_no")  # type: ignore[misc]
 async def handle_consent_no(callback: CallbackQuery, state: FSMContext) -> None:
     """Обработка отказа от контента 18+"""
     await callback.message.edit_text(
@@ -339,7 +339,7 @@ async def handle_consent_no(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
 
 
-@router.callback_query(F.data == "back_to_main")
+@router.callback_query(F.data == "back_to_main")  # type: ignore[misc]
 async def handle_back_to_main(callback: CallbackQuery, state: FSMContext) -> None:
     """Возврат в главное меню"""
     await callback.message.edit_text(
@@ -349,7 +349,7 @@ async def handle_back_to_main(callback: CallbackQuery, state: FSMContext) -> Non
     await callback.answer()
 
 
-@router.callback_query(F.data == "stop_conversation")
+@router.callback_query(F.data == "stop_conversation")  # type: ignore[misc]
 async def handle_stop_conversation(callback: CallbackQuery, state: FSMContext) -> None:
     """Остановка общения"""
     await callback.message.edit_text(

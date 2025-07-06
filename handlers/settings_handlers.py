@@ -26,7 +26,7 @@ class SettingsStates(StatesGroup):
     waiting_for_stop_words = State()
 
 
-@router.callback_query(F.data == "settings_gender")
+@router.callback_query(F.data == "settings_gender")  # type: ignore[misc]
 async def settings_gender(callback: CallbackQuery, state: FSMContext) -> None:
     """Настройка пола пользователя"""
     if callback.message is None:
@@ -40,7 +40,7 @@ async def settings_gender(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
 
 
-@router.callback_query(F.data == "settings_bot_gender")
+@router.callback_query(F.data == "settings_bot_gender")  # type: ignore[misc]
 async def settings_bot_gender(callback: CallbackQuery, state: FSMContext) -> None:
     """Настройка пола бота"""
     if callback.message is None:
@@ -54,7 +54,7 @@ async def settings_bot_gender(callback: CallbackQuery, state: FSMContext) -> Non
     await callback.answer()
 
 
-@router.callback_query(F.data == "settings_style")
+@router.callback_query(F.data == "settings_style")  # type: ignore[misc]
 async def settings_style(callback: CallbackQuery, state: FSMContext) -> None:
     """Настройка стиля общения"""
     if callback.message is None:
@@ -68,7 +68,7 @@ async def settings_style(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
 
 
-@router.callback_query(F.data == "settings_stop_words")
+@router.callback_query(F.data == "settings_stop_words")  # type: ignore[misc]
 async def settings_stop_words(callback: CallbackQuery, state: FSMContext) -> None:
     """Настройка стоп-слов"""
     if callback.message is None:
@@ -87,7 +87,7 @@ async def settings_stop_words(callback: CallbackQuery, state: FSMContext) -> Non
     await callback.answer()
 
 
-@router.callback_query(F.data == "settings_consent")
+@router.callback_query(F.data == "settings_consent")  # type: ignore[misc]
 async def settings_consent(callback: CallbackQuery) -> None:
     """Настройка согласия"""
     if callback.message is None:
@@ -107,7 +107,7 @@ async def settings_consent(callback: CallbackQuery) -> None:
 
 
 # Обработчики изменения настроек
-@router.callback_query(SettingsStates.waiting_for_gender, F.data.startswith("gender_"))
+@router.callback_query(SettingsStates.waiting_for_gender, F.data.startswith("gender_"))  # type: ignore[misc]
 async def change_gender(callback: CallbackQuery, state: FSMContext) -> None:
     """Изменение пола пользователя"""
     if callback.message is None:
@@ -138,7 +138,7 @@ async def change_gender(callback: CallbackQuery, state: FSMContext) -> None:
 
 @router.callback_query(
     SettingsStates.waiting_for_bot_gender, F.data.startswith("bot_gender_")
-)
+)  # type: ignore[misc]
 async def change_bot_gender(callback: CallbackQuery, state: FSMContext) -> None:
     """Изменение пола бота"""
     if callback.message is None:
@@ -167,7 +167,7 @@ async def change_bot_gender(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
 
 
-@router.callback_query(SettingsStates.waiting_for_style, F.data.startswith("style_"))
+@router.callback_query(SettingsStates.waiting_for_style, F.data.startswith("style_"))  # type: ignore[misc]
 async def change_style(callback: CallbackQuery, state: FSMContext) -> None:
     """Изменение стиля общения"""
     if callback.message is None:
@@ -196,7 +196,7 @@ async def change_style(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
 
 
-@router.message(SettingsStates.waiting_for_stop_words)
+@router.message(SettingsStates.waiting_for_stop_words)  # type: ignore[misc]
 async def change_stop_words(message: Message, state: FSMContext) -> None:
     """Изменение стоп-слов"""
     if not isinstance(message, Message) or message.text is None:
