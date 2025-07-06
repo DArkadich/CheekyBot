@@ -11,11 +11,11 @@ from database.models import CommunicationStyle, Gender
 
 
 class OpenAIService:
-    def __init__(self):
+    def __init__(self) -> None:
         # Используем settings или создаем новый экземпляр
         if settings is None:
             # В тестах или CI/CD создаем с дефолтными значениями
-            self.settings = Settings(
+            self.settings: Settings = Settings(
                 bot_token="dummy_token",
                 openai_api_key="dummy_key",
                 database_url="dummy_url",
@@ -185,7 +185,10 @@ class OpenAIService:
             )
 
             content = response.choices[0].message.content
-            return content.strip() if content is not None else None
+            if content is not None:
+                return content.strip()
+            else:
+                return None
 
         except Exception as e:
             logger.error(f"Error generating roleplay scenario: {e}")

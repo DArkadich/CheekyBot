@@ -20,7 +20,7 @@ class DatabaseManager:
         # Используем settings или создаем новый экземпляр
         if settings is None:
             # В тестах или CI/CD создаем с дефолтными значениями
-            self.settings = Settings(
+            self.settings: Settings = Settings(
                 bot_token="dummy_token",
                 openai_api_key="dummy_key",
                 database_url="postgresql://test:test@localhost:5432/test_db",

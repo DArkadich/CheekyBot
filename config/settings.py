@@ -45,8 +45,10 @@ class Settings(BaseSettings):
 
 
 # Global settings instance - создаем только если переменные окружения доступны
+settings: Optional[Settings] = None
+
 try:
     settings = Settings()
 except Exception:
     # В тестах или CI/CD переменные окружения могут отсутствовать
-    settings = None
+    pass
