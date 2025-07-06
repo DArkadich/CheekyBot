@@ -125,7 +125,7 @@ class OpenAIService:
 
             bot_response = response.choices[0].message.content
             if bot_response is not None:
-                return cast(str, bot_response).strip()
+                return bot_response.strip()
             else:
                 return None
 
@@ -187,7 +187,7 @@ class OpenAIService:
 
             content = response.choices[0].message.content
             if content is not None:
-                return cast(str, content).strip()
+                return content.strip()
             else:
                 return None
 
