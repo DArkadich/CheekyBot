@@ -79,6 +79,11 @@ async def main() -> None:
     logger.info("Bot started successfully!")
 
     try:
+        # Удаление webhook перед запуском long polling
+        logger.info("Deleting webhook...")
+        await bot.delete_webhook(drop_pending_updates=True)
+        logger.info("Webhook deleted successfully")
+        
         # Запуск бота
         await dp.start_polling(bot)
     except KeyboardInterrupt:
