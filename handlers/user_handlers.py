@@ -348,7 +348,7 @@ async def handle_consent_no(callback: CallbackQuery, state: FSMContext) -> None:
 async def handle_back_to_main(callback: CallbackQuery, state: FSMContext) -> None:
     """Возврат в главное меню"""
     await callback.message.edit_text(
-        "Главное меню:", reply_markup=get_main_menu_keyboard()
+        "Главное меню:", reply_markup=get_back_keyboard()
     )
     await state.clear()
     await callback.answer()
