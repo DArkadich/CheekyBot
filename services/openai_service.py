@@ -125,7 +125,7 @@ class OpenAIService:
 
             bot_response = response.choices[0].message.content
             if bot_response is not None and isinstance(bot_response, str):
-                return bot_response.strip()
+                return cast(Optional[str], bot_response.strip())
             else:
                 return None
 
@@ -187,7 +187,7 @@ class OpenAIService:
 
             content = response.choices[0].message.content
             if content is not None and isinstance(content, str):
-                return content.strip()
+                return cast(Optional[str], content.strip())
             else:
                 return None
 
