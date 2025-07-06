@@ -137,15 +137,15 @@ class OpenAIService:
 
         except openai.RateLimitError:
             logger.error("OpenAI API rate limit exceeded")
-            return "Извини, сейчас слишком много запросов. Попробуй через минуту."
+            return str("Извини, сейчас слишком много запросов. Попробуй через минуту.")
 
         except openai.APIError as e:
             logger.error(f"OpenAI API error: {e}")
-            return "Извини, произошла ошибка при обработке твоего сообщения."
+            return str("Извини, произошла ошибка при обработке твоего сообщения.")
 
         except Exception as e:
             logger.error(f"Unexpected error in OpenAI service: {e}")
-            return "Извини, что-то пошло не так. Попробуй еще раз."
+            return str("Извини, что-то пошло не так. Попробуй еще раз.")
 
     async def generate_roleplay_scenario(
         self, scenario_type: str, user_gender: Gender, bot_gender: Gender
@@ -192,7 +192,7 @@ class OpenAIService:
 
         except Exception as e:
             logger.error(f"Error generating roleplay scenario: {e}")
-            return "Извини, не удалось создать сценарий. Попробуй еще раз."
+            return str("Извини, не удалось создать сценарий. Попробуй еще раз.")
 
 
 # Глобальный экземпляр сервиса OpenAI
