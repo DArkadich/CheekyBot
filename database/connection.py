@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional
 import asyncpg
 from loguru import logger
 
-from config.settings import settings, Settings
+from config.settings import Settings, settings
 from database.models import (
     CREATE_TABLES_SQL,
     CommunicationStyle,

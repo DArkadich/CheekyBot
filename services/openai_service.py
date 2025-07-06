@@ -6,7 +6,7 @@ import openai
 import redis
 from loguru import logger
 
-from config.settings import settings, Settings
+from config.settings import Settings, settings
 from database.models import CommunicationStyle, Gender
 
 

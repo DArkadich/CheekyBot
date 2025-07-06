@@ -7,7 +7,7 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 from loguru import logger
 
-from config.settings import settings, Settings
+from config.settings import Settings, settings
 from database.connection import db
 from handlers.roleplay_handlers import router as roleplay_router
 from handlers.settings_handlers import router as settings_router

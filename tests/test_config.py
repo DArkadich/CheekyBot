@@ -1,4 +1,5 @@
 import pytest
+
 from config.settings import Settings
 
 
