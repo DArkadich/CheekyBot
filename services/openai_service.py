@@ -1,6 +1,6 @@
 import hashlib
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 import openai
 import redis
@@ -125,15 +125,9 @@ class OpenAIService:
 
             bot_response = response.choices[0].message.content
             if bot_response is not None:
-                bot_response = bot_response.strip()
+                return cast(str, bot_response).strip()
             else:
                 return None
-
-            # Сохранение в кеш
-            self.redis_client.setex(cache_key, self.settings.cache_ttl, bot_response)
-
-            logger.info(f"Generated response for message: {message[:50]}...")
-            return bot_response
 
         except openai.RateLimitError:
             logger.error("OpenAI API rate limit exceeded")
@@ -193,7 +187,7 @@ class OpenAIService:
 
             content = response.choices[0].message.content
             if content is not None:
-                return content.strip()
+                return cast(str, content).strip()
             else:
                 return None
 
