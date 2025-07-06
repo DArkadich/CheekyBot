@@ -347,9 +347,7 @@ async def handle_consent_no(callback: CallbackQuery, state: FSMContext) -> None:
 @router.callback_query(F.data == "back_to_main")  # type: ignore[misc]
 async def handle_back_to_main(callback: CallbackQuery, state: FSMContext) -> None:
     """Возврат в главное меню"""
-    await callback.message.edit_text(
-        "Главное меню:", reply_markup=get_back_keyboard()
-    )
+    await callback.message.edit_text("Главное меню:", reply_markup=get_back_keyboard())
     await state.clear()
     await callback.answer()
 
