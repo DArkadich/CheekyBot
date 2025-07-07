@@ -377,7 +377,7 @@ class OpenAIService:
         temperature: float = 1.1,
         presence_penalty: float = 0.8,
         frequency_penalty: float = 0.1,
-        **kwargs
+        **kwargs,
     ) -> Optional[str]:
         response = await self.client.chat.completions.create(
             model=self.model,
@@ -386,7 +386,7 @@ class OpenAIService:
             temperature=temperature,
             presence_penalty=presence_penalty,
             frequency_penalty=frequency_penalty,
-            **kwargs
+            **kwargs,
         )
         content = response.choices[0].message.content
         return content.strip() if content else None

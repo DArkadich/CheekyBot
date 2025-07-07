@@ -179,8 +179,19 @@ async def show_help(message: Message) -> None:
 
 
 def contains_profanity(text: str) -> bool:
-    profanities = ["хуй", "бляд", "пизд", "еба", "нахуй", "сука", "наебн", "мудил", "гандон"]
+    profanities = [
+        "хуй",
+        "бляд",
+        "пизд",
+        "еба",
+        "нахуй",
+        "сука",
+        "наебн",
+        "мудил",
+        "гандон",
+    ]
     return any(re.search(rf"\b{word}", text, re.IGNORECASE) for word in profanities)
+
 
 def get_poet_prompt(user_used_profanity: bool) -> str:
     base = (
@@ -188,17 +199,17 @@ def get_poet_prompt(user_used_profanity: bool) -> str:
         "Можешь отвечать стихами, использовать юмор, цитаты, фольклор, но всегда оставайся доброжелательным и не переходи границы."
     )
     if user_used_profanity:
-        base += (
-            " Если собеседник использует нецензурную лексику, можешь аккуратно использовать её в ответах, но не перебарщивай и не оскорбляй."
-        )
+        base += " Если собеседник использует нецензурную лексику, можешь аккуратно использовать её в ответах, но не перебарщивай и не оскорбляй."
     else:
         base += (
             " Не используй нецензурную лексику, пока собеседник сам её не использует."
         )
     return base
 
+
 def get_default_prompt() -> str:
     return "Ты — виртуальный собеседник для флирта и романтического общения. Будь дружелюбным, остроумным, но не используй нецензурную лексику."
+
 
 @router.message(UserStates.in_conversation)  # type: ignore[misc]
 async def handle_conversation(message: Message, state: FSMContext) -> None:
@@ -229,7 +240,9 @@ async def handle_conversation(message: Message, state: FSMContext) -> None:
 
         # Определяем, использовал ли пользователь мат в последних 5 сообщениях
         recent_history = await db.get_recent_conversations(user_id, limit=5)
-        user_used_profanity = any(contains_profanity(conv.message) for conv in recent_history)
+        user_used_profanity = any(
+            contains_profanity(conv.message) for conv in recent_history
+        )
 
         # Выбор prompt-а
         if getattr(user, "persona", "default") == "poet":
@@ -247,17 +260,16 @@ async def handle_conversation(message: Message, state: FSMContext) -> None:
             messages=messages,
             max_tokens=400,
             temperature=1.1 if getattr(user, "persona", "default") == "poet" else 0.8,
-            presence_penalty=0.8 if getattr(user, "persona", "default") == "poet" else 0.1,
+            presence_penalty=0.8
+            if getattr(user, "persona", "default") == "poet"
+            else 0.1,
             frequency_penalty=0.1,
         )
 
         if bot_response:
             await message.answer(bot_response)
             await context_manager.add_message_to_context(
-                user_id,
-                message.text,
-                bot_response,
-                user.communication_style.value
+                user_id, message.text, bot_response, user.communication_style.value
             )
             conversation = Conversation(
                 id=0,
