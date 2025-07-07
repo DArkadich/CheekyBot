@@ -377,7 +377,7 @@ class OpenAIService:
         temperature: float = 1.1,
         presence_penalty: float = 0.8,
         frequency_penalty: float = 0.1,
-        **kwargs,
+        **kwargs: Any,
     ) -> Optional[str]:
         response = await self.client.chat.completions.create(
             model=self.model,
