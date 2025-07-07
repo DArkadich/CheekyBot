@@ -296,9 +296,20 @@ async def handle_style_selection(callback: CallbackQuery, state: FSMContext) -> 
         await callback.answer()
         return
 
+    user_id = callback.from_user.id
+    existing_user = await db.get_user(user_id)
+    if existing_user is not None:
+        await callback.message.edit_text(
+            "Пользователь уже зарегистрирован. Используйте /settings для изменения профиля.",
+            reply_markup=get_settings_keyboard(),
+        )
+        await state.clear()
+        await callback.answer()
+        return
+
     # Создаем пользователя
     user = User(
-        user_id=callback.from_user.id,
+        user_id=user_id,
         username=callback.from_user.username,
         first_name=callback.from_user.first_name,
         last_name=callback.from_user.last_name,
