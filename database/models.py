@@ -31,6 +31,7 @@ class User:
     created_at: datetime
     updated_at: datetime
     is_active: bool = True
+    persona: str = "default"
 
 
 @dataclass
@@ -68,6 +69,7 @@ CREATE TABLE IF NOT EXISTS users (
     communication_style VARCHAR(20) NOT NULL DEFAULT 'playful',
     consent_given BOOLEAN NOT NULL DEFAULT FALSE,
     stop_words TEXT[] DEFAULT '{}',
+    persona VARCHAR(32) NOT NULL DEFAULT 'default',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     is_active BOOLEAN DEFAULT TRUE

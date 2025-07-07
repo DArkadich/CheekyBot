@@ -370,6 +370,27 @@ class OpenAIService:
             )
             return scenario_error_msg
 
+    async def generate_response_with_custom_prompt(
+        self,
+        messages: list,
+        max_tokens: int = 400,
+        temperature: float = 1.1,
+        presence_penalty: float = 0.8,
+        frequency_penalty: float = 0.1,
+        **kwargs
+    ) -> Optional[str]:
+        response = await self.client.chat.completions.create(
+            model=self.model,
+            messages=messages,  # type: ignore[arg-type]
+            max_tokens=max_tokens,
+            temperature=temperature,
+            presence_penalty=presence_penalty,
+            frequency_penalty=frequency_penalty,
+            **kwargs
+        )
+        content = response.choices[0].message.content
+        return content.strip() if content else None
+
 
 # Глобальный экземпляр сервиса OpenAI
 openai_service = OpenAIService()

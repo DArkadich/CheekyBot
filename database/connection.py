@@ -92,8 +92,8 @@ class DatabaseManager:
             await conn.execute(
                 """
                 INSERT INTO users (user_id, username, first_name, last_name, gender, bot_gender,
-                                 communication_style, consent_given, stop_words)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                                 communication_style, consent_given, stop_words, persona)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
                 """,
                 user.user_id,
                 user.username,
@@ -104,6 +104,7 @@ class DatabaseManager:
                 user.communication_style.value,
                 user.consent_given,
                 user.stop_words,
+                user.persona,
             )
 
             # Создание записи статистики
@@ -126,7 +127,7 @@ class DatabaseManager:
                 """
                 UPDATE users SET username = $2, first_name = $3, last_name = $4,
                                 gender = $5, bot_gender = $6, communication_style = $7,
-                                consent_given = $8, stop_words = $9, updated_at = NOW()
+                                consent_given = $8, stop_words = $9, persona = $10, updated_at = NOW()
                 WHERE user_id = $1
                 """,
                 user.user_id,
@@ -138,6 +139,7 @@ class DatabaseManager:
                 user.communication_style.value,
                 user.consent_given,
                 user.stop_words,
+                user.persona,
             )
             return user
 

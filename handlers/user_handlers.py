@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 
 from aiogram import F, Router
 from aiogram.filters import Command
@@ -177,6 +178,28 @@ async def show_help(message: Message) -> None:
     await cmd_help(message)
 
 
+def contains_profanity(text: str) -> bool:
+    profanities = ["хуй", "бляд", "пизд", "еба", "нахуй", "сука", "наебн", "мудил", "гандон"]
+    return any(re.search(rf"\b{word}", text, re.IGNORECASE) for word in profanities)
+
+def get_poet_prompt(user_used_profanity: bool) -> str:
+    base = (
+        "Ты — виртуальный собеседник, поэт и бард, умеющий поддерживать разговор в поэтической, ироничной и дружеской манере. "
+        "Можешь отвечать стихами, использовать юмор, цитаты, фольклор, но всегда оставайся доброжелательным и не переходи границы."
+    )
+    if user_used_profanity:
+        base += (
+            " Если собеседник использует нецензурную лексику, можешь аккуратно использовать её в ответах, но не перебарщивай и не оскорбляй."
+        )
+    else:
+        base += (
+            " Не используй нецензурную лексику, пока собеседник сам её не использует."
+        )
+    return base
+
+def get_default_prompt() -> str:
+    return "Ты — виртуальный собеседник для флирта и романтического общения. Будь дружелюбным, остроумным, но не используй нецензурную лексику."
+
 @router.message(UserStates.in_conversation)  # type: ignore[misc]
 async def handle_conversation(message: Message, state: FSMContext) -> None:
     """Обработка сообщений в режиме общения с оптимизированным контекстом"""
@@ -204,34 +227,46 @@ async def handle_conversation(message: Message, state: FSMContext) -> None:
             user_id, max_tokens=800
         )
 
-        # Генерируем ответ с учетом оптимизированного контекста
-        bot_response = await openai_service.generate_response(
-            message.text,
-            user.communication_style,
-            user.gender,
-            user.bot_gender,
-            conversation_history=conversation_history,
-            stop_words=user.stop_words,
+        # Определяем, использовал ли пользователь мат в последних 5 сообщениях
+        recent_history = await db.get_recent_conversations(user_id, limit=5)
+        user_used_profanity = any(contains_profanity(conv.message) for conv in recent_history)
+
+        # Выбор prompt-а
+        if getattr(user, "persona", "default") == "poet":
+            system_prompt = get_poet_prompt(user_used_profanity)
+        else:
+            system_prompt = get_default_prompt()
+
+        # Формируем messages для OpenAI
+        messages = [{"role": "system", "content": system_prompt}]
+        if conversation_history:
+            messages.extend(conversation_history)
+        messages.append({"role": "user", "content": message.text})
+
+        bot_response = await openai_service.generate_response_with_custom_prompt(
+            messages=messages,
+            max_tokens=400,
+            temperature=1.1 if getattr(user, "persona", "default") == "poet" else 0.8,
+            presence_penalty=0.8 if getattr(user, "persona", "default") == "poet" else 0.1,
+            frequency_penalty=0.1,
         )
 
         if bot_response:
             await message.answer(bot_response)
-
-            # Добавляем сообщение в контекст
             await context_manager.add_message_to_context(
-                user_id, message.text, bot_response, user.communication_style.value
+                user_id,
+                message.text,
+                bot_response,
+                user.communication_style.value
             )
-
-            # Сохраняем диалог в базу (для статистики и аналитики)
             conversation = Conversation(
-                id=0,  # Будет установлено базой данных
+                id=0,
                 user_id=user_id,
                 message=message.text,
                 bot_response=bot_response,
                 communication_style=user.communication_style,
-                tokens_used=len(message.text.split())
-                + len(bot_response.split()),  # Примерный подсчет
-                created_at=datetime.now(),  # Будет установлено базой данных
+                tokens_used=len(message.text.split()) + len(bot_response.split()),
+                created_at=datetime.now(),
             )
             await db.save_conversation(conversation)
         else:
@@ -418,3 +453,24 @@ async def cmd_context_info(message: Message) -> None:
     """
 
     await message.answer(context_info, parse_mode="HTML")
+
+
+@router.message(Command("persona"))  # type: ignore[misc]
+async def cmd_persona(message: Message, state: FSMContext) -> None:
+    """Смена личности пользователя (default/poet)"""
+    user_id = message.from_user.id
+    user = await db.get_user(user_id)
+    if user is None:
+        await message.answer("Сначала зарегистрируйтесь через /start.")
+        return
+    args = message.text.split()
+    if len(args) < 2:
+        await message.answer("Укажите личность: /persona poet или /persona default")
+        return
+    persona = args[1].strip().lower()
+    if persona not in ("default", "poet"):
+        await message.answer("Доступные личности: default, poet")
+        return
+    user.persona = persona
+    await db.update_user(user)
+    await message.answer(f"Личность бота теперь: {persona}")
