@@ -372,7 +372,7 @@ class OpenAIService:
 
     async def generate_response_with_custom_prompt(
         self,
-        messages: list,
+        messages: list[dict[str, str]],
         max_tokens: int = 400,
         temperature: float = 1.1,
         presence_penalty: float = 0.8,
@@ -381,7 +381,7 @@ class OpenAIService:
     ) -> Optional[str]:
         response = await self.client.chat.completions.create(
             model=self.model,
-            messages=messages,  # type: ignore[arg-type]
+            messages=messages,
             max_tokens=max_tokens,
             temperature=temperature,
             presence_penalty=presence_penalty,
