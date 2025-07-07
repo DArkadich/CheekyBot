@@ -79,6 +79,11 @@ def get_communication_style_keyboard() -> InlineKeyboardMarkup:
                     text="🌙 Загадочный", callback_data="style_mysterious"
                 ),
             ],
+            [
+                InlineKeyboardButton(
+                    text="🪶 Поэтический", callback_data="style_poet"
+                ),
+            ],
         ]
     )
     return keyboard
