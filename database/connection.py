@@ -232,4 +232,3 @@ class DatabaseManager:
 
 # Глобальный экземпляр менеджера базы данных
 db = DatabaseManager()
- 
