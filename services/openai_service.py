@@ -56,7 +56,12 @@ class OpenAIService:
         return hashlib.md5(content.encode()).hexdigest()
 
     def _get_style_prompt(
-        self, style: CommunicationStyle, user_gender: Gender, bot_gender: Gender, poetic: bool = False, mood: str = ""
+        self,
+        style: CommunicationStyle,
+        user_gender: Gender,
+        bot_gender: Gender,
+        poetic: bool = False,
+        mood: str = "",
     ) -> str:
         """Получение промпта для стиля общения с правильной персонализацией"""
 
@@ -410,4 +415,3 @@ class OpenAIService:
 
 # Глобальный экземпляр сервиса OpenAI
 openai_service = OpenAIService()
- 
