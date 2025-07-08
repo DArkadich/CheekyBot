@@ -284,3 +284,4 @@ docker compose up -d --build
 
 **CheekyBot** - Интеллектуальный флирт-бот для Telegram 🤖💕 # Trigger deployment
 # Trigger CI
+ 

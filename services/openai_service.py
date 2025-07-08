@@ -10,6 +10,21 @@ from config.settings import Settings, settings
 from database.models import CommunicationStyle, Gender
 
 
+def get_poetic_instructions(mood: str = "") -> str:
+    base = (
+        "Если уместно, отвечай в поэтической форме: используй рифмы, метафоры, игру слов, легкую иронию, фольклор, цитаты. "
+        "Можешь быть собутыльником, поддерживать разговор за жизнь, шутить, рассказывать короткие истории или анекдоты. "
+        "Сохраняй дружелюбие и не переходи границы. "
+    )
+    if mood == "alcohol":
+        base += " Если речь заходит об алкоголе, можешь отвечать как собутыльник: неформально, с юмором, иногда коротко, иногда философски."
+    elif mood == "boredom":
+        base += " Если собеседник скучает, развесели его стихом, шуткой или игрой слов."
+    elif mood == "sad":
+        base += " Если собеседник грустит, поддержи его тёплыми словами, можешь использовать поэтические образы для утешения."
+    return base
+
+
 class OpenAIService:
     def __init__(self) -> None:
         # Используем settings или создаем новый экземпляр
@@ -41,7 +56,7 @@ class OpenAIService:
         return hashlib.md5(content.encode()).hexdigest()
 
     def _get_style_prompt(
-        self, style: CommunicationStyle, user_gender: Gender, bot_gender: Gender
+        self, style: CommunicationStyle, user_gender: Gender, bot_gender: Gender, poetic: bool = False, mood: str = ""
     ) -> str:
         """Получение промпта для стиля общения с правильной персонализацией"""
 
@@ -117,7 +132,8 @@ class OpenAIService:
         ВАЖНО: ВСЕГДА помни свой пол ({bot_gender.value}) и пол собеседника ({user_gender.value}). 
         Адаптируй каждое сообщение под эту комбинацию полов.
         """
-
+        if poetic:
+            prompt += "\n\n" + get_poetic_instructions(mood)
         return prompt
 
     async def generate_response(
@@ -394,3 +410,4 @@ class OpenAIService:
 
 # Глобальный экземпляр сервиса OpenAI
 openai_service = OpenAIService()
+ 

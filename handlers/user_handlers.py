@@ -193,22 +193,19 @@ def contains_profanity(text: str) -> bool:
     return any(re.search(rf"\b{word}", text, re.IGNORECASE) for word in profanities)
 
 
-def get_poet_prompt(user_used_profanity: bool) -> str:
-    base = (
-        "Ты — виртуальный собеседник, поэт и бард, умеющий поддерживать разговор в поэтической, ироничной и дружеской манере. "
-        "Можешь отвечать стихами, использовать юмор, цитаты, фольклор, но всегда оставайся доброжелательным и не переходи границы."
-    )
-    if user_used_profanity:
-        base += " Если собеседник использует нецензурную лексику, можешь аккуратно использовать её в ответах, но не перебарщивай и не оскорбляй."
-    else:
-        base += (
-            " Не используй нецензурную лексику, пока собеседник сам её не использует."
-        )
-    return base
-
-
-def get_default_prompt() -> str:
-    return "Ты — виртуальный собеседник для флирта и романтического общения. Будь дружелюбным, остроумным, но не используй нецензурную лексику."
+def detect_poetic_mood(text: str) -> tuple[bool, str]:
+    """Анализирует текст пользователя и определяет, нужен ли поэтический режим и настроение."""
+    poetic_triggers = [
+        ("alcohol", ["налей", "коньяк", "виски", "бар", "собутыльник", "бухать", "выпить", "рюмка", "перетереть", "за жизнь"]),
+        ("boredom", ["скучно", "развесели", "развлеки", "игра", "играть", "шутка", "пошути", "анекдот"]),
+        ("sad", ["грусть", "тоска", "одиночество", "печаль", "устал", "устала", "грустно", "одинок", "одиноко"]),
+        ("poetry", ["стих", "рифма", "поэма", "в рифму", "поэтически", "поэзию", "стихотворение"]),
+    ]
+    text_lower = text.lower()
+    for mood, keywords in poetic_triggers:
+        if any(word in text_lower for word in keywords):
+            return True, mood
+    return False, ""
 
 
 @router.message(UserStates.in_conversation)  # type: ignore[misc]
@@ -244,26 +241,19 @@ async def handle_conversation(message: Message, state: FSMContext) -> None:
             contains_profanity(conv.message) for conv in recent_history
         )
 
-        # Выбор prompt-а
-        if getattr(user, "persona", "default") == "poet":
-            system_prompt = get_poet_prompt(user_used_profanity)
-        else:
-            system_prompt = get_default_prompt()
+        # Анализируем настроение пользователя
+        poetic, mood = detect_poetic_mood(message.text)
 
-        # Формируем messages для OpenAI
-        messages = [{"role": "system", "content": system_prompt}]
-        if conversation_history:
-            messages.extend(conversation_history)
-        messages.append({"role": "user", "content": message.text})
-
-        bot_response = await openai_service.generate_response_with_custom_prompt(
-            messages=messages,
-            max_tokens=400,
-            temperature=1.1 if getattr(user, "persona", "default") == "poet" else 0.8,
-            presence_penalty=0.8
-            if getattr(user, "persona", "default") == "poet"
-            else 0.1,
-            frequency_penalty=0.1,
+        # Формируем prompt через openai_service
+        bot_response = await openai_service.generate_response(
+            message.text,
+            user.communication_style,
+            user.gender,
+            user.bot_gender,
+            conversation_history,
+            user.stop_words,
+            poetic=poetic,
+            mood=mood,
         )
 
         if bot_response:
