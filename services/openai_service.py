@@ -160,6 +160,7 @@ class OpenAIService:
         stop_words: Optional[List[str]] = None,
         poetic: bool = False,
         mood: str = "",
+        ranevskaya: bool = False,
     ) -> Optional[str]:
         """Генерация ответа с использованием OpenAI API и контекстной памяти"""
 
@@ -184,7 +185,7 @@ class OpenAIService:
 
         try:
             system_prompt = self._get_style_prompt(
-                style, user_gender, bot_gender, poetic, mood
+                style, user_gender, bot_gender, poetic, mood, ranevskaya
             )
 
             # Добавление правил безопасности и контекста
