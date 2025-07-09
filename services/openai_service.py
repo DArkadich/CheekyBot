@@ -149,6 +149,8 @@ class OpenAIService:
         bot_gender: Gender,
         conversation_history: Optional[List[Dict[str, str]]] = None,
         stop_words: Optional[List[str]] = None,
+        poetic: bool = False,
+        mood: str = "",
     ) -> Optional[str]:
         """Генерация ответа с использованием OpenAI API и контекстной памяти"""
 
@@ -172,7 +174,7 @@ class OpenAIService:
                 return decoded if isinstance(decoded, str) else None
 
         try:
-            system_prompt = self._get_style_prompt(style, user_gender, bot_gender)
+            system_prompt = self._get_style_prompt(style, user_gender, bot_gender, poetic, mood)
 
             # Добавление правил безопасности и контекста
             safety_prompt = """
