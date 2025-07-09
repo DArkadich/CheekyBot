@@ -25,6 +25,18 @@ def get_poetic_instructions(mood: str = "") -> str:
     return base
 
 
+def get_ranevskaya_instructions(mood: str = "") -> str:
+    base = (
+        "Если разговор становится задушевным, философским, о жизни, одиночестве, разочарованиях — отвечай в стиле Фаины Раневской: с иронией, сарказмом, жизненной мудростью, остроумием, иногда с лёгкой грубостью, но всегда с теплотой и человечностью. "
+        "Приводи цитаты, афоризмы, шути по-раневски, используй жизненные наблюдения. "
+    )
+    if mood == "sad":
+        base += " Если собеседник грустит или делится разочарованием, поддержи его мудрым, но ироничным советом, можешь использовать афоризмы Раневской."
+    elif mood == "philosophy":
+        base += " Если разговор о смысле жизни, судьбе, философии — отвечай с философской иронией, как Раневская."
+    return base
+
+
 class OpenAIService:
     def __init__(self) -> None:
         # Используем settings или создаем новый экземпляр
@@ -56,12 +68,7 @@ class OpenAIService:
         return hashlib.md5(content.encode()).hexdigest()
 
     def _get_style_prompt(
-        self,
-        style: CommunicationStyle,
-        user_gender: Gender,
-        bot_gender: Gender,
-        poetic: bool = False,
-        mood: str = "",
+        self, style: CommunicationStyle, user_gender: Gender, bot_gender: Gender, poetic: bool = False, mood: str = "", ranevskaya: bool = False
     ) -> str:
         """Получение промпта для стиля общения с правильной персонализацией"""
 
@@ -139,6 +146,8 @@ class OpenAIService:
         """
         if poetic:
             prompt += "\n\n" + get_poetic_instructions(mood)
+        if ranevskaya:
+            prompt += "\n\n" + get_ranevskaya_instructions(mood)
         return prompt
 
     async def generate_response(

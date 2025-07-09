@@ -258,6 +258,19 @@ def detect_poetic_mood(text: str) -> tuple[bool, str]:
     return False, ""
 
 
+def detect_ranevskaya_mood(text: str) -> tuple[bool, str]:
+    """Анализирует текст пользователя и определяет, нужен ли стиль Фаины Раневской и настроение."""
+    ranevskaya_triggers = [
+        ("sad", ["жизнь", "одиночество", "разочарование", "старость", "душа", "философия", "смысл", "грусть", "тоска", "разговор по душам", "перетереть", "душевно", "сердце", "судьба", "сложно", "устал", "устала", "разочарован", "разочарована", "мудрость", "опыт", "женщина", "мужчина", "любовь", "ирония", "сарказм", "цитата", "афоризм"]),
+        ("philosophy", ["философия", "смысл", "судьба", "жизнь", "опыт", "мудрость", "размышления", "быть", "существование", "истина", "вопрос", "ответ", "почему", "зачем"]),
+    ]
+    text_lower = text.lower()
+    for mood, keywords in ranevskaya_triggers:
+        if any(word in text_lower for word in keywords):
+            return True, mood
+    return False, ""
+
+
 @router.message(UserStates.in_conversation)  # type: ignore[misc]
 async def handle_conversation(message: Message, state: FSMContext) -> None:
     """Обработка сообщений в режиме общения с оптимизированным контекстом"""
@@ -292,8 +305,10 @@ async def handle_conversation(message: Message, state: FSMContext) -> None:
         )
 
         # Анализируем настроение пользователя
-        poetic, mood = detect_poetic_mood(message.text)
-
+        poetic, poetic_mood = detect_poetic_mood(message.text)
+        ranevskaya, ranevskaya_mood = detect_ranevskaya_mood(message.text)
+        # Приоритет: если оба триггера, оба флага True, mood выбираем по приоритету (ranevskaya > poetic)
+        mood = ranevskaya_mood if ranevskaya else poetic_mood
         # Формируем prompt через openai_service
         bot_response = await openai_service.generate_response(
             message.text,
@@ -304,6 +319,7 @@ async def handle_conversation(message: Message, state: FSMContext) -> None:
             user.stop_words,
             poetic=poetic,
             mood=mood,
+            ranevskaya=ranevskaya,
         )
 
         if bot_response:
